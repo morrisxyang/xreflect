@@ -10,11 +10,14 @@ import (
 
 // SetEmbedStructField 设置嵌套的结构体字段, obj 必须是指针
 func SetEmbedStructField(obj interface{}, path string, value interface{}) error {
-	if obj == nil || path == "" {
-		return nil
+	if obj == nil {
+		return errors.New("obj must not be nil")
+	}
+	if path == "" {
+		return errors.New("path must not be empty")
 	}
 	if reflect.TypeOf(obj).Kind() != reflect.Pointer {
-		return nil
+		return errors.New("obj must be pointer")
 	}
 
 	target := reflect.ValueOf(obj).Elem()
@@ -33,7 +36,7 @@ func SetEmbedStructField(obj interface{}, path string, value interface{}) error 
 	}
 
 	if !target.IsValid() || !target.CanSet() {
-		return fmt.Errorf("cannot set %s field value", path)
+		return fmt.Errorf("%s cannot be set", path)
 	}
 
 	targetType := target.Type()
