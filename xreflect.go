@@ -8,6 +8,35 @@ import (
 	"strings"
 )
 
+// SetField 设置 field
+func SetField(obj interface{}, fieldName string, fieldValue interface{}) error {
+	if obj == nil {
+		return errors.New("obj must not be nil")
+	}
+	if fieldName == "" {
+		return errors.New("field name must not be empty")
+	}
+	if reflect.TypeOf(obj).Kind() != reflect.Pointer {
+		return errors.New("obj must be pointer")
+	}
+
+	target := reflect.ValueOf(obj).Elem()
+	target = target.FieldByName(fieldName)
+	if !target.IsValid() {
+		return fmt.Errorf("field: %s is invalid", fieldName)
+	}
+	if !target.CanSet() {
+		return fmt.Errorf("field: %s cannot set", fieldName)
+	}
+
+	actualValue := reflect.ValueOf(fieldValue)
+	if target.Type() != actualValue.Type() {
+		actualValue = actualValue.Convert(target.Type())
+	}
+	target.Set(actualValue)
+	return nil
+}
+
 // SetEmbedStructField 设置嵌套的结构体字段, obj 必须是指针
 func SetEmbedStructField(obj interface{}, fieldPath string, fieldValue interface{}) error {
 	if obj == nil {
@@ -42,12 +71,10 @@ func SetEmbedStructField(obj interface{}, fieldPath string, fieldValue interface
 		return fmt.Errorf("%s cannot be set", fieldPath)
 	}
 
-	targetType := target.Type()
 	actualValue := reflect.ValueOf(fieldValue)
-	if targetType != actualValue.Type() {
-		actualValue = actualValue.Convert(targetType)
+	if target.Type() != actualValue.Type() {
+		actualValue = actualValue.Convert(target.Type())
 	}
-
 	target.Set(actualValue)
 	return nil
 }
