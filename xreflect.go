@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
+	"unsafe"
 )
 
 // SetField 设置 field
@@ -28,6 +29,34 @@ func SetField(obj interface{}, fieldName string, fieldValue interface{}) error {
 	if !target.CanSet() {
 		return fmt.Errorf("field: %s cannot set", fieldName)
 	}
+
+	actualValue := reflect.ValueOf(fieldValue)
+	if target.Type() != actualValue.Type() {
+		actualValue = actualValue.Convert(target.Type())
+	}
+	target.Set(actualValue)
+	return nil
+}
+
+// SetPrivateField 设置私有字段
+func SetPrivateField(obj interface{}, fieldName string, fieldValue interface{}) error {
+	if obj == nil {
+		return errors.New("obj must not be nil")
+	}
+	if fieldName == "" {
+		return errors.New("field name must not be empty")
+	}
+	if reflect.TypeOf(obj).Kind() != reflect.Pointer {
+		return errors.New("obj must be pointer")
+	}
+
+	target := reflect.ValueOf(obj).Elem()
+	target = target.FieldByName(fieldName)
+	if !target.IsValid() {
+		return fmt.Errorf("field: %s is invalid", fieldName)
+	}
+	// private
+	target = reflect.NewAt(target.Type(), unsafe.Pointer(target.UnsafeAddr())).Elem()
 
 	actualValue := reflect.ValueOf(fieldValue)
 	if target.Type() != actualValue.Type() {
