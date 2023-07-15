@@ -1,4 +1,4 @@
-// Package xreflect ...
+// Package xreflect 反射工具库
 package xreflect
 
 import (
@@ -71,11 +71,11 @@ func SetEmbedStructField(obj interface{}, fieldPath string, fieldValue interface
 	if obj == nil {
 		return errors.New("obj must not be nil")
 	}
+	if !isSupportedType(obj, []reflect.Kind{reflect.Pointer}) {
+		return errors.New("obj must be pointer")
+	}
 	if fieldPath == "" {
 		return errors.New("field path must not be empty")
-	}
-	if reflect.TypeOf(obj).Kind() != reflect.Pointer {
-		return errors.New("obj must be pointer")
 	}
 
 	target := reflect.ValueOf(obj).Elem()
@@ -85,14 +85,20 @@ func SetEmbedStructField(obj interface{}, fieldPath string, fieldValue interface
 			return fmt.Errorf("field path:%s is invalid", fieldPath)
 		}
 		if target.Kind() == reflect.Pointer {
+			// 	结构体指针为空则自行创建
 			if target.IsNil() {
 				target.Set(reflect.New(target.Type().Elem()).Elem().Addr())
 			}
 			target = reflect.ValueOf(target.Interface()).Elem()
 		}
-		if !target.IsValid() || !target.CanSet() || target.Kind() != reflect.Struct {
-			return errors.New("set operation is invalid")
+
+		if err := checkField(target); err != nil {
+			return err
 		}
+		if !isSupportedKind(target.Kind(), []reflect.Kind{reflect.Struct}) {
+			return fmt.Errorf("field %s is not struct", target)
+		}
+
 		target = target.FieldByName(fieldName)
 	}
 
@@ -106,4 +112,35 @@ func SetEmbedStructField(obj interface{}, fieldPath string, fieldValue interface
 	}
 	target.Set(actualValue)
 	return nil
+}
+
+func checkField(field reflect.Value) error {
+	if !field.IsValid() {
+		return fmt.Errorf("field %s is invalid", field)
+	}
+	if !field.CanSet() {
+		return fmt.Errorf("field %s can not set", field)
+	}
+
+	return nil
+}
+
+func isSupportedKind(k reflect.Kind, kinds []reflect.Kind) bool {
+	for _, v := range kinds {
+		if k == v {
+			return true
+		}
+	}
+
+	return false
+}
+
+func isSupportedType(obj interface{}, types []reflect.Kind) bool {
+	for _, t := range types {
+		if reflect.TypeOf(obj).Kind() == t {
+			return true
+		}
+	}
+
+	return false
 }
