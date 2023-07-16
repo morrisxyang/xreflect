@@ -9,6 +9,31 @@ import (
 	"unsafe"
 )
 
+// NewInstance returns a new instance of the same type as the input value.
+// The returned value will contain the zero value of the type.
+func NewInstance(value interface{}) interface{} {
+	if value == nil {
+		return nil
+	}
+	entity := reflect.ValueOf(value)
+
+	switch entity.Kind() {
+	case reflect.Ptr:
+		entity = reflect.New(entity.Elem().Type())
+		break
+	case reflect.Map:
+		entity = reflect.MakeMap(entity.Type())
+		break
+	case reflect.Slice:
+		entity = reflect.MakeSlice(entity.Type(), 0, 0)
+		break
+	default:
+		entity = reflect.New(entity.Type()).Elem()
+	}
+
+	return entity.Interface()
+}
+
 // SetField 设置 field
 func SetField(obj interface{}, fieldName string, fieldValue interface{}) error {
 	if obj == nil {
