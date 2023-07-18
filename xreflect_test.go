@@ -48,6 +48,29 @@ func newCountry() Country {
 	return country
 }
 
+func TestNewInstance(t *testing.T) {
+	tests := []struct {
+		name  string
+		value interface{}
+		want  interface{}
+	}{
+		{"int", int(1), 0},
+		{"float", float32(1), float32(0)},
+		{"string", "1", ""},
+		{"struct", Country{ID: 1}, Country{}},
+		{"struct ptr", &Country{ID: 1}, &Country{}},
+		{"[]string", []string{"1"}, []string{}},
+		{"1 array", [1]string{}, [1]string{}},
+		{"2 array", [2]string{}, [2]string{}},
+		{"map[string]string", make(map[string]string), make(map[string]string)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, NewInstance(tt.value), "NewInstance(%v)", tt.value)
+		})
+	}
+}
+
 func Test_SetEmbedStructField(t *testing.T) {
 	// first level
 	country := newCountry()
