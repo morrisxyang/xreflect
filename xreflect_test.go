@@ -49,6 +49,7 @@ func newCountry() Country {
 }
 
 func TestNewInstance(t *testing.T) {
+	s := "1"
 	tests := []struct {
 		name  string
 		value interface{}
@@ -56,10 +57,12 @@ func TestNewInstance(t *testing.T) {
 	}{
 		{"int", int(1), 0},
 		{"float", float32(1), float32(0)},
+		{"complex", complex(1, 1), complex(0, 0)},
 		{"string", "1", ""},
 		{"struct", Country{ID: 1}, Country{}},
 		{"struct ptr", &Country{ID: 1}, &Country{}},
 		{"[]string", []string{"1"}, []string{}},
+		{"[]*string", []*string{&s}, []*string{}},
 		{"1 array", [1]string{}, [1]string{}},
 		{"2 array", [2]string{}, [2]string{}},
 		{"map[string]string", make(map[string]string), make(map[string]string)},
