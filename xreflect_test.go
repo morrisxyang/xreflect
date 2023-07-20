@@ -72,6 +72,14 @@ func TestNewInstance(t *testing.T) {
 			assert.Equalf(t, tt.want, NewInstance(tt.value), "NewInstance(%v)", tt.value)
 		})
 	}
+
+	// test chan
+	ci := make(chan int)
+	ci2 := NewInstance(ci).(chan int)
+	go func() {
+		assert.Equal(t, 1, <-ci2)
+	}()
+	ci2 <- 1
 }
 
 func Test_SetEmbedStructField(t *testing.T) {
