@@ -21,6 +21,9 @@ func NewInstance(value interface{}) interface{} {
 	case reflect.Ptr:
 		entity = reflect.New(entity.Elem().Type())
 		break
+	case reflect.Chan:
+		entity = reflect.MakeChan(entity.Type(), 0)
+		break
 	case reflect.Map:
 		entity = reflect.MakeMap(entity.Type())
 		break
