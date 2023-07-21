@@ -22,13 +22,13 @@ func NewInstance(value interface{}) interface{} {
 		entity = reflect.New(entity.Elem().Type())
 		break
 	case reflect.Chan:
-		entity = reflect.MakeChan(entity.Type(), 0)
+		entity = reflect.MakeChan(entity.Type(), entity.Cap())
 		break
 	case reflect.Map:
 		entity = reflect.MakeMap(entity.Type())
 		break
 	case reflect.Slice:
-		entity = reflect.MakeSlice(entity.Type(), 0, 0)
+		entity = reflect.MakeSlice(entity.Type(), 0, entity.Cap())
 		break
 	default:
 		entity = reflect.New(entity.Type()).Elem()

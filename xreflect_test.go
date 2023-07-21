@@ -74,12 +74,19 @@ func TestNewInstance(t *testing.T) {
 	}
 
 	// test chan
-	ci := make(chan int)
-	ci2 := NewInstance(ci).(chan int)
+	ci1 := make(chan int)
+	ci2 := NewInstance(ci1).(chan int)
+	assert.Equal(t, 0, cap(ci1))
+	assert.Equal(t, 0, cap(ci2))
 	go func() {
 		assert.Equal(t, 1, <-ci2)
 	}()
 	ci2 <- 1
+
+	ci3 := make(chan int, 3)
+	ci4 := NewInstance(ci3).(chan int)
+	assert.Equal(t, 3, cap(ci4))
+	assert.Equal(t, 0, len(ci4))
 }
 
 func Test_SetEmbedStructField(t *testing.T) {
