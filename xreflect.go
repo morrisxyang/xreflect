@@ -42,20 +42,17 @@ func SetField(obj interface{}, fieldName string, fieldValue interface{}) error {
 	if obj == nil {
 		return errors.New("obj must not be nil")
 	}
+	if !isSupportedType(obj, []reflect.Kind{reflect.Pointer}) {
+		return errors.New("obj must be pointer")
+	}
 	if fieldName == "" {
 		return errors.New("field name must not be empty")
-	}
-	if reflect.TypeOf(obj).Kind() != reflect.Pointer {
-		return errors.New("obj must be pointer")
 	}
 
 	target := reflect.ValueOf(obj).Elem()
 	target = target.FieldByName(fieldName)
-	if !target.IsValid() {
-		return fmt.Errorf("field: %s is invalid", fieldName)
-	}
-	if !target.CanSet() {
-		return fmt.Errorf("field: %s cannot set", fieldName)
+	if err := checkField(target); err != nil {
+		return err
 	}
 
 	actualValue := reflect.ValueOf(fieldValue)
@@ -71,11 +68,11 @@ func SetPrivateField(obj interface{}, fieldName string, fieldValue interface{}) 
 	if obj == nil {
 		return errors.New("obj must not be nil")
 	}
+	if !isSupportedType(obj, []reflect.Kind{reflect.Pointer}) {
+		return errors.New("obj must be pointer")
+	}
 	if fieldName == "" {
 		return errors.New("field name must not be empty")
-	}
-	if reflect.TypeOf(obj).Kind() != reflect.Pointer {
-		return errors.New("obj must be pointer")
 	}
 
 	target := reflect.ValueOf(obj).Elem()
@@ -130,8 +127,8 @@ func SetEmbedStructField(obj interface{}, fieldPath string, fieldValue interface
 		target = target.FieldByName(fieldName)
 	}
 
-	if !target.IsValid() || !target.CanSet() {
-		return fmt.Errorf("%s cannot be set", fieldPath)
+	if err := checkField(target); err != nil {
+		return err
 	}
 
 	actualValue := reflect.ValueOf(fieldValue)
