@@ -139,6 +139,25 @@ func SetEmbedStructField(obj interface{}, fieldPath string, fieldValue interface
 	return nil
 }
 
+// GetField ...
+func GetField(obj interface{}, name string) (interface{}, error) {
+	if obj == nil {
+		return nil, errors.New("obj must not be nil")
+	}
+
+	objValue := getValue(obj)
+	if !isSupportedKind(objValue.Kind(), []reflect.Kind{reflect.Struct}) {
+		return nil, errors.New("obj must be struct")
+	}
+
+	field := objValue.FieldByName(name)
+	if !field.IsValid() {
+		return nil, fmt.Errorf("no such field: %s", name)
+	}
+
+	return field.Interface(), nil
+}
+
 func checkField(field reflect.Value) error {
 	if !field.IsValid() {
 		return fmt.Errorf("field %s is invalid", field)
@@ -168,4 +187,11 @@ func isSupportedType(obj interface{}, types []reflect.Kind) bool {
 	}
 
 	return false
+}
+
+func getValue(obj interface{}) reflect.Value {
+	if reflect.TypeOf(obj).Kind() == reflect.Ptr {
+		return reflect.ValueOf(obj).Elem()
+	}
+	return reflect.ValueOf(obj)
 }
