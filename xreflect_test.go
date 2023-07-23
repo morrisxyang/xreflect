@@ -1,10 +1,16 @@
 package xreflect
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+type Person struct {
+	Name string
+	Age  int
+}
 
 type Country struct {
 	ID   int
@@ -190,4 +196,67 @@ func Test_SetEmbedStructField(t *testing.T) {
 	err = SetEmbedStructField(&country, "PtrCity.Town.Strs", []string{"A", "B"})
 	assert.Equal(t, err, nil)
 	assert.Equal(t, country.PtrCity.Town.Strs, []string{"A", "B"})
+}
+
+func TestGetField(t *testing.T) {
+	type args struct {
+		obj  interface{}
+		name string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    interface{}
+		wantErr assert.ErrorAssertionFunc
+	}{
+		{
+			name: "get",
+			args: args{
+				obj:  Person{Name: "John", Age: 30},
+				name: "Name",
+			},
+			want:    "John",
+			wantErr: assert.NoError,
+		},
+		{
+			name: "no such field",
+			args: args{
+				obj:  Person{Name: "John", Age: 30},
+				name: "Address",
+			},
+			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+				return assert.EqualError(t, err, "no such field: Address")
+			},
+		},
+		{
+			name: "nil",
+			args: args{
+				obj:  nil,
+				name: "Name",
+			},
+			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+				return assert.EqualError(t, err, "obj must not be nil")
+			},
+		},
+		{
+			name: "not a struct",
+			args: args{
+				obj:  "test",
+				name: "Name",
+			},
+			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+				return assert.EqualError(t, err, "obj must be struct")
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := GetField(tt.args.obj, tt.args.name)
+			if !tt.wantErr(t, err, fmt.Sprintf("GetField(%v, %v)", tt.args.obj, tt.args.name)) {
+				return
+			}
+			assert.Equalf(t, tt.want, got, "GetField(%v, %v)", tt.args.obj, tt.args.name)
+		})
+	}
 }
