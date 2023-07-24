@@ -139,8 +139,8 @@ func SetEmbedStructField(obj interface{}, fieldPath string, fieldValue interface
 	return nil
 }
 
-// GetField ...
-func GetField(obj interface{}, name string) (interface{}, error) {
+// GetFieldValue ...
+func GetFieldValue(obj interface{}, name string) (interface{}, error) {
 	if obj == nil {
 		return nil, errors.New("obj must not be nil")
 	}

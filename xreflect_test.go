@@ -252,11 +252,11 @@ func TestGetField(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetField(tt.args.obj, tt.args.name)
-			if !tt.wantErr(t, err, fmt.Sprintf("GetField(%v, %v)", tt.args.obj, tt.args.name)) {
+			got, err := GetFieldValue(tt.args.obj, tt.args.name)
+			if !tt.wantErr(t, err, fmt.Sprintf("GetFieldValue(%v, %v)", tt.args.obj, tt.args.name)) {
 				return
 			}
-			assert.Equalf(t, tt.want, got, "GetField(%v, %v)", tt.args.obj, tt.args.name)
+			assert.Equalf(t, tt.want, got, "GetFieldValue(%v, %v)", tt.args.obj, tt.args.name)
 		})
 	}
 }
