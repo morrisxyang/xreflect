@@ -199,6 +199,22 @@ func GetFieldTypeStr(obj interface{}, name string) (string, error) {
 	return field.Type().String(), nil
 }
 
+// GetFieldTag returns the provided obj field tag value.
+// The `obj` parameter can either be a structure or pointer to structure.
+func GetFieldTag(obj interface{}, fieldName, tagKey string) (string, error) {
+	objValue := getValue(obj)
+	if !isSupportedKind(objValue.Kind(), []reflect.Kind{reflect.Struct}) {
+		return "", errors.New("obj must be struct")
+	}
+
+	structField, ok := objValue.Type().FieldByName(fieldName)
+	if !ok {
+		return "", fmt.Errorf("no such field: %s in obj", fieldName)
+	}
+
+	return structField.Tag.Get(tagKey), nil
+}
+
 func checkField(field reflect.Value) error {
 	if !field.IsValid() {
 		return fmt.Errorf("field %s is invalid", field)
