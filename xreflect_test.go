@@ -8,8 +8,9 @@ import (
 )
 
 type Person struct {
-	Name string
-	Age  int
+	Name  string `json:"name"`
+	Age   int    `json:"age"`
+	phone string `json:"phone"`
 }
 
 type Country struct {
@@ -257,6 +258,82 @@ func TestGetField(t *testing.T) {
 				return
 			}
 			assert.Equalf(t, tt.want, got, "GetFieldValue(%v, %v)", tt.args.obj, tt.args.name)
+		})
+	}
+}
+
+func TestGetFieldTag(t *testing.T) {
+	type args struct {
+		obj       interface{}
+		fieldName string
+		tagKey    string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr assert.ErrorAssertionFunc
+	}{
+		{
+			name: "struct json tag",
+			args: args{
+				obj:       Person{},
+				fieldName: "Name",
+				tagKey:    "json",
+			},
+			want:    "name",
+			wantErr: assert.NoError,
+		},
+		{
+			name: "struct ptr json tag",
+			args: args{
+				obj:       &Person{},
+				fieldName: "Name",
+				tagKey:    "json",
+			},
+			want:    "name",
+			wantErr: assert.NoError,
+		},
+		{
+			name: "struct no exist field",
+			args: args{
+				obj:       &Person{},
+				fieldName: "Name1",
+				tagKey:    "json",
+			},
+			want: "",
+			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+				return assert.EqualError(t, err, "no such field: Name1 in obj")
+			},
+		},
+		{
+			name: "struct no exist tag",
+			args: args{
+				obj:       &Person{},
+				fieldName: "Name",
+				tagKey:    "json1",
+			},
+			want:    "",
+			wantErr: assert.NoError,
+		},
+		{
+			name: "struct private tag",
+			args: args{
+				obj:       &Person{},
+				fieldName: "phone",
+				tagKey:    "json",
+			},
+			want:    "phone",
+			wantErr: assert.NoError,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := GetFieldTag(tt.args.obj, tt.args.fieldName, tt.args.tagKey)
+			if !tt.wantErr(t, err, fmt.Sprintf("GetFieldTag(%v, %v, %v)", tt.args.obj, tt.args.fieldName, tt.args.tagKey)) {
+				return
+			}
+			assert.Equalf(t, tt.want, got, "GetFieldTag(%v, %v, %v)", tt.args.obj, tt.args.fieldName, tt.args.tagKey)
 		})
 	}
 }
