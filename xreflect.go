@@ -246,7 +246,20 @@ func isSupportedType(obj interface{}, types []reflect.Kind) bool {
 	return false
 }
 
+func getType(obj interface{}) reflect.Type {
+	if v, ok := obj.(reflect.Type); ok {
+		return v
+	}
+	if v, ok := obj.(reflect.Value); ok {
+		return v.Type()
+	}
+	return reflect.TypeOf(obj)
+}
+
 func getValue(obj interface{}) reflect.Value {
+	if v, ok := obj.(reflect.Value); ok {
+		return v
+	}
 	if reflect.TypeOf(obj).Kind() == reflect.Ptr {
 		return reflect.ValueOf(obj).Elem()
 	}

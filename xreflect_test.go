@@ -2,6 +2,7 @@ package xreflect
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -211,7 +212,7 @@ func TestGetField(t *testing.T) {
 		wantErr assert.ErrorAssertionFunc
 	}{
 		{
-			name: "get",
+			name: "Get",
 			args: args{
 				obj:  Person{Name: "John", Age: 30},
 				name: "Name",
@@ -220,7 +221,7 @@ func TestGetField(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "no such field",
+			name: "No such field",
 			args: args{
 				obj:  Person{Name: "John", Age: 30},
 				name: "Address",
@@ -240,7 +241,7 @@ func TestGetField(t *testing.T) {
 			},
 		},
 		{
-			name: "not a struct",
+			name: "Not a struct",
 			args: args{
 				obj:  "test",
 				name: "Name",
@@ -275,7 +276,7 @@ func TestGetFieldTag(t *testing.T) {
 		wantErr assert.ErrorAssertionFunc
 	}{
 		{
-			name: "struct json tag",
+			name: "Struct json tag",
 			args: args{
 				obj:       Person{},
 				fieldName: "Name",
@@ -285,7 +286,7 @@ func TestGetFieldTag(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "struct ptr json tag",
+			name: "Struct ptr json tag",
 			args: args{
 				obj:       &Person{},
 				fieldName: "Name",
@@ -295,7 +296,7 @@ func TestGetFieldTag(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "struct no exist field",
+			name: "Struct no exist field",
 			args: args{
 				obj:       &Person{},
 				fieldName: "Name1",
@@ -307,7 +308,7 @@ func TestGetFieldTag(t *testing.T) {
 			},
 		},
 		{
-			name: "struct no exist tag",
+			name: "Struct no exist tag",
 			args: args{
 				obj:       &Person{},
 				fieldName: "Name",
@@ -317,7 +318,7 @@ func TestGetFieldTag(t *testing.T) {
 			wantErr: assert.NoError,
 		},
 		{
-			name: "struct private tag",
+			name: "Struct private tag",
 			args: args{
 				obj:       &Person{},
 				fieldName: "phone",
@@ -336,4 +337,47 @@ func TestGetFieldTag(t *testing.T) {
 			assert.Equalf(t, tt.want, got, "GetFieldTag(%v, %v, %v)", tt.args.obj, tt.args.fieldName, tt.args.tagKey)
 		})
 	}
+}
+
+func Test_getType(t *testing.T) {
+	testCases := []struct {
+		name     string
+		obj      interface{}
+		expected reflect.Type
+	}{
+		{
+			name:     "Testing with reflect.Type",
+			obj:      reflect.TypeOf("test"),
+			expected: reflect.TypeOf("test"),
+		},
+		{
+			name:     "Testing with reflect.Value",
+			obj:      reflect.ValueOf(10),
+			expected: reflect.TypeOf(10),
+		},
+		{
+			name:     "Testing with other types",
+			obj:      "test",
+			expected: reflect.TypeOf("test"),
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := getType(tc.obj)
+			if result != tc.expected {
+				t.Errorf("Expected type %v, got %v", tc.expected, result)
+			}
+		})
+	}
+
+	var i ***int
+	assert.Equal(t, reflect.Ptr, getType(i).Kind())
+	assert.Equal(t, "***int", getType(i).String())
+
+	ty := getType(i)
+	for ty.Kind() == reflect.Ptr {
+		ty = ty.Elem()
+	}
+	assert.Equal(t, "int", ty.String())
 }
