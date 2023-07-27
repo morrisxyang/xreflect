@@ -360,6 +360,11 @@ func Test_getType(t *testing.T) {
 			obj:      "test",
 			expected: reflect.TypeOf("test"),
 		},
+		{
+			name:     "Testing with nil",
+			obj:      nil,
+			expected: nil,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -370,14 +375,115 @@ func Test_getType(t *testing.T) {
 			}
 		})
 	}
+}
 
-	var i ***int
-	assert.Equal(t, reflect.Ptr, getType(i).Kind())
-	assert.Equal(t, "***int", getType(i).String())
+func Test_getTypePenetrateElem(t *testing.T) {
+	var i3 ***int
+	i0 := 1
+	i1 := &i0
+	i2 := &i1
+	i3 = &i2
 
-	ty := getType(i)
-	for ty.Kind() == reflect.Ptr {
-		ty = ty.Elem()
+	testCases := []struct {
+		name     string
+		obj      interface{}
+		expected reflect.Type
+	}{
+		{
+			name:     "***int and *int",
+			obj:      i3,
+			expected: reflect.TypeOf(i1).Elem(),
+		},
+		{
+			name:     "***int and int",
+			obj:      i3,
+			expected: reflect.TypeOf(i0),
+		},
+		{
+			name:     "Testing with reflect.Value",
+			obj:      reflect.ValueOf(10),
+			expected: reflect.TypeOf(10),
+		},
+		{
+			name:     "Testing with other types",
+			obj:      "test",
+			expected: reflect.TypeOf("test"),
+		},
+		{
+			name:     "Testing with nil",
+			obj:      nil,
+			expected: nil,
+		},
 	}
-	assert.Equal(t, "int", ty.String())
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result := getTypePenetrateElem(tc.obj)
+			if result != tc.expected {
+				t.Errorf("Expected type %v, got %v", tc.expected, result)
+			}
+		})
+	}
+}
+
+func TestGetValue(t *testing.T) {
+	ii := &[]int{1, 2, 3}
+	testCases := []struct {
+		name     string
+		input    interface{}
+		expected reflect.Value
+	}{
+		{name: "Int",
+			input:    42,
+			expected: reflect.ValueOf(42),
+		},
+		{name: "String",
+			input:    "hello",
+			expected: reflect.ValueOf("hello"),
+		},
+		{name: "&[]int{1, 2, 3}",
+			input:    ii,
+			expected: reflect.ValueOf(ii).Elem(),
+		},
+		{name: "Nil",
+			input:    nil,
+			expected: reflect.Value{},
+		},
+	}
+
+	// Run test cases
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			actual := getValue(tc.input)
+			if actual != tc.expected {
+				t.Errorf("Expected reflect value %v, but got %v", tc.expected, actual)
+			}
+		})
+	}
+}
+
+func Test_getValuePenetrateElem(t *testing.T) {
+	var i3 ***int
+	i0 := 1
+	i1 := &i0
+	i2 := &i1
+	i3 = &i2
+
+	testCases := []struct {
+		name     string
+		input    interface{}
+		expected reflect.Value
+	}{
+		{"***int", i3, reflect.ValueOf(i1).Elem()},
+		{"int", i0, reflect.ValueOf(i0)},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			actual := getValuePenetrateElem(tc.input)
+			if !reflect.DeepEqual(actual, tc.expected) {
+				t.Errorf("Expected %v, but got %v", tc.expected, actual)
+			}
+		})
+	}
 }

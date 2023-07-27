@@ -247,6 +247,9 @@ func isSupportedType(obj interface{}, types []reflect.Kind) bool {
 }
 
 func getType(obj interface{}) reflect.Type {
+	if obj == nil {
+		return nil
+	}
 	if v, ok := obj.(reflect.Type); ok {
 		return v
 	}
@@ -257,6 +260,9 @@ func getType(obj interface{}) reflect.Type {
 }
 
 func getTypePenetrateElem(obj interface{}) reflect.Type {
+	if obj == nil {
+		return nil
+	}
 	ty := getType(obj)
 	for ty.Kind() == reflect.Ptr {
 		ty = ty.Elem()
@@ -279,6 +285,10 @@ func getValue(obj interface{}) reflect.Value {
 }
 
 func getValuePenetrateElem(obj interface{}) reflect.Value {
+	var empty reflect.Value
+	if obj == nil {
+		return empty
+	}
 	ty := getValue(obj)
 	for ty.Kind() == reflect.Ptr {
 		ty = ty.Elem()
