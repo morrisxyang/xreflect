@@ -256,7 +256,19 @@ func getType(obj interface{}) reflect.Type {
 	return reflect.TypeOf(obj)
 }
 
+func getTypePenetrateElem(obj interface{}) reflect.Type {
+	ty := getType(obj)
+	for ty.Kind() == reflect.Ptr {
+		ty = ty.Elem()
+	}
+	return ty
+}
+
 func getValue(obj interface{}) reflect.Value {
+	var empty reflect.Value
+	if obj == nil {
+		return empty
+	}
 	if v, ok := obj.(reflect.Value); ok {
 		return v
 	}
@@ -264,4 +276,12 @@ func getValue(obj interface{}) reflect.Value {
 		return reflect.ValueOf(obj).Elem()
 	}
 	return reflect.ValueOf(obj)
+}
+
+func getValuePenetrateElem(obj interface{}) reflect.Value {
+	ty := getValue(obj)
+	for ty.Kind() == reflect.Ptr {
+		ty = ty.Elem()
+	}
+	return ty
 }
