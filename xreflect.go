@@ -146,7 +146,7 @@ func GetField(obj interface{}, name string) (reflect.Value, error) {
 		return empty, errors.New("obj must not be nil")
 	}
 
-	objValue := getValue(obj)
+	objValue := GetValue(obj)
 	if !isSupportedKind(objValue.Kind(), []reflect.Kind{reflect.Struct}) {
 		return empty, errors.New("obj must be struct")
 	}
@@ -202,7 +202,11 @@ func GetFieldTypeStr(obj interface{}, name string) (string, error) {
 // GetFieldTag returns the provided obj field tag value.
 // The `obj` parameter can either be a structure or pointer to structure.
 func GetFieldTag(obj interface{}, fieldName, tagKey string) (string, error) {
-	objValue := getValue(obj)
+	if obj == nil {
+		return "", errors.New("obj must not be nil")
+	}
+
+	objValue := GetValue(obj)
 	if !isSupportedKind(objValue.Kind(), []reflect.Kind{reflect.Struct}) {
 		return "", errors.New("obj must be struct")
 	}
@@ -213,6 +217,60 @@ func GetFieldTag(obj interface{}, fieldName, tagKey string) (string, error) {
 	}
 
 	return structField.Tag.Get(tagKey), nil
+}
+
+// GetType ...
+func GetType(obj interface{}) reflect.Type {
+	if obj == nil {
+		return nil
+	}
+	if v, ok := obj.(reflect.Type); ok {
+		return v
+	}
+	if v, ok := obj.(reflect.Value); ok {
+		return v.Type()
+	}
+	return reflect.TypeOf(obj)
+}
+
+// GetTypePenetrateElem ...
+func GetTypePenetrateElem(obj interface{}) reflect.Type {
+	if obj == nil {
+		return nil
+	}
+	ty := GetType(obj)
+	for ty.Kind() == reflect.Ptr {
+		ty = ty.Elem()
+	}
+	return ty
+}
+
+// GetValue ...
+func GetValue(obj interface{}) reflect.Value {
+	var empty reflect.Value
+	if obj == nil {
+		return empty
+	}
+	if v, ok := obj.(reflect.Value); ok {
+		return v
+	}
+	if reflect.TypeOf(obj).Kind() == reflect.Ptr {
+		return reflect.ValueOf(obj).Elem()
+	}
+	return reflect.ValueOf(obj)
+}
+
+// GetValuePenetrateElem ...
+func GetValuePenetrateElem(obj interface{}) reflect.Value {
+	var empty reflect.Value
+	if obj == nil {
+		return empty
+	}
+	ty := GetValue(obj)
+	for ty.Kind() == reflect.Ptr {
+		ty = ty.Elem()
+	}
+	return ty
 }
 
 func checkField(field reflect.Value) error {
@@ -244,54 +302,4 @@ func isSupportedType(obj interface{}, types []reflect.Kind) bool {
 	}
 
 	return false
-}
-
-func getType(obj interface{}) reflect.Type {
-	if obj == nil {
-		return nil
-	}
-	if v, ok := obj.(reflect.Type); ok {
-		return v
-	}
-	if v, ok := obj.(reflect.Value); ok {
-		return v.Type()
-	}
-	return reflect.TypeOf(obj)
-}
-
-func getTypePenetrateElem(obj interface{}) reflect.Type {
-	if obj == nil {
-		return nil
-	}
-	ty := getType(obj)
-	for ty.Kind() == reflect.Ptr {
-		ty = ty.Elem()
-	}
-	return ty
-}
-
-func getValue(obj interface{}) reflect.Value {
-	var empty reflect.Value
-	if obj == nil {
-		return empty
-	}
-	if v, ok := obj.(reflect.Value); ok {
-		return v
-	}
-	if reflect.TypeOf(obj).Kind() == reflect.Ptr {
-		return reflect.ValueOf(obj).Elem()
-	}
-	return reflect.ValueOf(obj)
-}
-
-func getValuePenetrateElem(obj interface{}) reflect.Value {
-	var empty reflect.Value
-	if obj == nil {
-		return empty
-	}
-	ty := getValue(obj)
-	for ty.Kind() == reflect.Ptr {
-		ty = ty.Elem()
-	}
-	return ty
 }
