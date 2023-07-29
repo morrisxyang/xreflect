@@ -43,15 +43,19 @@ func SetField(obj interface{}, fieldName string, fieldValue interface{}) error {
 		return errors.New("obj must not be nil")
 	}
 	if !isSupportedType(obj, []reflect.Kind{reflect.Pointer}) {
-		return errors.New("obj must be pointer")
+		return errors.New("obj must be struct pointer")
 	}
 	if fieldName == "" {
 		return errors.New("field name must not be empty")
 	}
 
-	target := reflect.ValueOf(obj).Elem()
+	target := GetValue(obj)
+	if !isSupportedKind(target.Kind(), []reflect.Kind{reflect.Struct}) {
+		return errors.New("obj must be struct pointer")
+	}
+
 	target = target.FieldByName(fieldName)
-	if err := checkField(target); err != nil {
+	if err := checkField(target, fieldName); err != nil {
 		return err
 	}
 
@@ -103,7 +107,7 @@ func SetEmbedStructField(obj interface{}, fieldPath string, fieldValue interface
 		return errors.New("field path must not be empty")
 	}
 
-	target := reflect.ValueOf(obj).Elem()
+	target := GetValue(obj)
 	fieldNames := strings.Split(fieldPath, ".")
 	for _, fieldName := range fieldNames {
 		if fieldName == "" {
@@ -116,19 +120,14 @@ func SetEmbedStructField(obj interface{}, fieldPath string, fieldValue interface
 			}
 			target = reflect.ValueOf(target.Interface()).Elem()
 		}
-
-		if err := checkField(target); err != nil {
-			return err
-		}
 		if !isSupportedKind(target.Kind(), []reflect.Kind{reflect.Struct}) {
 			return fmt.Errorf("field %s is not struct", target)
 		}
 
 		target = target.FieldByName(fieldName)
-	}
-
-	if err := checkField(target); err != nil {
-		return err
+		if err := checkField(target, fieldName); err != nil {
+			return err
+		}
 	}
 
 	actualValue := reflect.ValueOf(fieldValue)
@@ -273,12 +272,12 @@ func GetValuePenetrateElem(obj interface{}) reflect.Value {
 	return ty
 }
 
-func checkField(field reflect.Value) error {
+func checkField(field reflect.Value, name string) error {
 	if !field.IsValid() {
-		return fmt.Errorf("field %s is invalid", field)
+		return fmt.Errorf("field %s is invalid", name)
 	}
 	if !field.CanSet() {
-		return fmt.Errorf("field %s can not set", field)
+		return fmt.Errorf("field %s can not set", name)
 	}
 
 	return nil

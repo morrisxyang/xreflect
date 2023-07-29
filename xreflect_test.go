@@ -9,9 +9,10 @@ import (
 )
 
 type Person struct {
-	Name  string `json:"name"`
-	Age   int    `json:"age"`
-	phone string `json:"phone"`
+	Name   string `json:"name"`
+	Age    int    `json:"age"`
+	phone  string `json:"phone"`
+	Person *Person
 }
 
 type Country struct {
@@ -95,6 +96,37 @@ func TestNewInstance(t *testing.T) {
 	ci4 := NewInstance(ci3).(chan int)
 	assert.Equal(t, 3, cap(ci4))
 	assert.Equal(t, 0, len(ci4))
+}
+
+func TestSetField(t *testing.T) {
+	p := &Person{
+		Name:  "",
+		Age:   0,
+		phone: "",
+	}
+	err := SetField(nil, "Name", "John")
+	assert.EqualError(t, err, "obj must not be nil")
+
+	err = SetField(*p, "Name", "John")
+	assert.EqualError(t, err, "obj must be struct pointer")
+
+	err = SetField(p, "Name1", "John")
+	assert.EqualError(t, err, "field Name1 is invalid")
+
+	s := "str"
+	err = SetField(&s, "Name", "John")
+	assert.EqualError(t, err, "obj must be struct pointer")
+
+	err = SetField(p, "Name", "John")
+	assert.Equal(t, err, nil)
+	assert.Equal(t, p.Name, "John")
+
+	err = SetField(p, "Person", &Person{
+		Name: "Mike",
+	})
+	assert.Equal(t, err, nil)
+	assert.Equal(t, p.Person.Name, "Mike")
+
 }
 
 func Test_SetEmbedStructField(t *testing.T) {
@@ -339,7 +371,7 @@ func TestGetFieldTag(t *testing.T) {
 	}
 }
 
-func Test_getType(t *testing.T) {
+func TestGetType(t *testing.T) {
 	testCases := []struct {
 		name     string
 		obj      interface{}
@@ -377,7 +409,7 @@ func Test_getType(t *testing.T) {
 	}
 }
 
-func Test_getTypePenetrateElem(t *testing.T) {
+func TestGetTypePenetrateElem(t *testing.T) {
 	var i3 ***int
 	i0 := 1
 	i1 := &i0
@@ -462,7 +494,7 @@ func TestGetValue(t *testing.T) {
 	}
 }
 
-func Test_getValuePenetrateElem(t *testing.T) {
+func TestGetValuePenetrateElem(t *testing.T) {
 	var i3 ***int
 	i0 := 1
 	i1 := &i0
