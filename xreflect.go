@@ -73,18 +73,22 @@ func SetPrivateField(obj interface{}, fieldName string, fieldValue interface{}) 
 		return errors.New("obj must not be nil")
 	}
 	if !isSupportedType(obj, []reflect.Kind{reflect.Pointer}) {
-		return errors.New("obj must be pointer")
+		return errors.New("obj must be struct pointer")
 	}
 	if fieldName == "" {
 		return errors.New("field name must not be empty")
 	}
 
-	target := reflect.ValueOf(obj).Elem()
+	target := GetValue(obj)
+	if !isSupportedKind(target.Kind(), []reflect.Kind{reflect.Struct}) {
+		return errors.New("obj must be struct pointer")
+	}
+
 	target = target.FieldByName(fieldName)
 	if !target.IsValid() {
 		return fmt.Errorf("field: %s is invalid", fieldName)
 	}
-	// private
+	// private field
 	target = reflect.NewAt(target.Type(), unsafe.Pointer(target.UnsafeAddr())).Elem()
 
 	actualValue := reflect.ValueOf(fieldValue)
@@ -274,10 +278,10 @@ func GetValuePenetrateElem(obj interface{}) reflect.Value {
 
 func checkField(field reflect.Value, name string) error {
 	if !field.IsValid() {
-		return fmt.Errorf("field %s is invalid", name)
+		return fmt.Errorf("field: %s is invalid", name)
 	}
 	if !field.CanSet() {
-		return fmt.Errorf("field %s can not set", name)
+		return fmt.Errorf("field: %s can not set", name)
 	}
 
 	return nil

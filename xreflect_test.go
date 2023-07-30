@@ -111,11 +111,14 @@ func TestSetField(t *testing.T) {
 	assert.EqualError(t, err, "obj must be struct pointer")
 
 	err = SetField(p, "Name1", "John")
-	assert.EqualError(t, err, "field Name1 is invalid")
+	assert.EqualError(t, err, "field: Name1 is invalid")
 
 	s := "str"
 	err = SetField(&s, "Name", "John")
 	assert.EqualError(t, err, "obj must be struct pointer")
+
+	err = SetField(p, "phone", "123")
+	assert.EqualError(t, err, "field: phone can not set")
 
 	err = SetField(p, "Name", "John")
 	assert.Equal(t, err, nil)
@@ -126,10 +129,43 @@ func TestSetField(t *testing.T) {
 	})
 	assert.Equal(t, err, nil)
 	assert.Equal(t, p.Person.Name, "Mike")
-
 }
 
-func Test_SetEmbedStructField(t *testing.T) {
+func TestSetPrivateField(t *testing.T) {
+	p := &Person{
+		Name:  "",
+		Age:   0,
+		phone: "",
+	}
+	err := SetPrivateField(nil, "Name", "John")
+	assert.EqualError(t, err, "obj must not be nil")
+
+	err = SetPrivateField(*p, "Name", "John")
+	assert.EqualError(t, err, "obj must be struct pointer")
+
+	err = SetPrivateField(p, "Name1", "John")
+	assert.EqualError(t, err, "field: Name1 is invalid")
+
+	s := "str"
+	err = SetPrivateField(&s, "Name", "John")
+	assert.EqualError(t, err, "obj must be struct pointer")
+
+	err = SetPrivateField(p, "phone", "123")
+	assert.Equal(t, err, nil)
+	assert.Equal(t, p.phone, "123")
+
+	err = SetPrivateField(p, "Name", "John")
+	assert.Equal(t, err, nil)
+	assert.Equal(t, p.Name, "John")
+
+	err = SetPrivateField(p, "Person", &Person{
+		Name: "Mike",
+	})
+	assert.Equal(t, err, nil)
+	assert.Equal(t, p.Person.Name, "Mike")
+}
+
+func TestSetEmbedStructField(t *testing.T) {
 	// first level
 	country := newCountry()
 	err := SetEmbedStructField(&country, "ID", 1)
