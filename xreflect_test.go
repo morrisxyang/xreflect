@@ -331,7 +331,27 @@ func TestGetField(t *testing.T) {
 	}
 }
 
-func TestGetFieldTag(t *testing.T) {
+func TestGetStructField(t *testing.T) {
+	_, err := GetStructField(nil, "Name")
+	assert.EqualError(t, err, "obj must not be nil")
+
+	_, err = GetStructField("", "Name")
+	assert.EqualError(t, err, "obj must be struct")
+
+	p := &Person{}
+	_, err = GetStructField(p, "Name1")
+	assert.EqualError(t, err, "no such field: Name1 in obj")
+
+	st, err := GetStructField(p, "Name")
+	assert.Equal(t, nil, err)
+	assert.Equal(t, "Name", st.Name)
+
+	st, err = GetStructField(p, "phone")
+	assert.Equal(t, nil, err)
+	assert.Equal(t, "phone", st.Name)
+}
+
+func TestGetStructFieldTag(t *testing.T) {
 	type args struct {
 		obj       interface{}
 		fieldName string
@@ -398,11 +418,11 @@ func TestGetFieldTag(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetFieldTag(tt.args.obj, tt.args.fieldName, tt.args.tagKey)
-			if !tt.wantErr(t, err, fmt.Sprintf("GetFieldTag(%v, %v, %v)", tt.args.obj, tt.args.fieldName, tt.args.tagKey)) {
+			got, err := GetStructFieldTag(tt.args.obj, tt.args.fieldName, tt.args.tagKey)
+			if !tt.wantErr(t, err, fmt.Sprintf("GetStructFieldTag(%v, %v, %v)", tt.args.obj, tt.args.fieldName, tt.args.tagKey)) {
 				return
 			}
-			assert.Equalf(t, tt.want, got, "GetFieldTag(%v, %v, %v)", tt.args.obj, tt.args.fieldName, tt.args.tagKey)
+			assert.Equalf(t, tt.want, got, "GetStructFieldTag(%v, %v, %v)", tt.args.obj, tt.args.fieldName, tt.args.tagKey)
 		})
 	}
 }

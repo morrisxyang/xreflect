@@ -202,19 +202,48 @@ func GetFieldTypeStr(obj interface{}, name string) (string, error) {
 	return field.Type().String(), nil
 }
 
-// GetFieldTag returns the provided obj field tag value.
+// GetStructField 获取结构体的字段
+func GetStructField(obj interface{}, fieldName string) (reflect.StructField, error) {
+	var empty reflect.StructField
+	if obj == nil {
+		return empty, errors.New("obj must not be nil")
+	}
+
+	ty := GetType(obj)
+	if !isSupportedKind(ty.Kind(), []reflect.Kind{reflect.Struct}) {
+		return empty, errors.New("obj must be struct")
+	}
+
+	field, ok := ty.FieldByName(fieldName)
+	if !ok {
+		return empty, fmt.Errorf("no such field: %s in obj", fieldName)
+	}
+	return field, nil
+}
+
+// GetStructFields 获取结构体的字段
+func GetStructFields(obj interface{}) (res []reflect.StructField) {
+	t := GetType(obj)
+
+	for i := 0; i < t.NumField(); i++ {
+		res = append(res, t.Field(i))
+	}
+	return res
+}
+
+// GetStructFieldTag returns the provided obj field tag value.
 // The `obj` parameter can either be a structure or pointer to structure.
-func GetFieldTag(obj interface{}, fieldName, tagKey string) (string, error) {
+func GetStructFieldTag(obj interface{}, fieldName, tagKey string) (string, error) {
 	if obj == nil {
 		return "", errors.New("obj must not be nil")
 	}
 
-	objValue := GetValue(obj)
-	if !isSupportedKind(objValue.Kind(), []reflect.Kind{reflect.Struct}) {
+	ty := GetType(obj)
+	if !isSupportedKind(ty.Kind(), []reflect.Kind{reflect.Struct}) {
 		return "", errors.New("obj must be struct")
 	}
 
-	structField, ok := objValue.Type().FieldByName(fieldName)
+	structField, ok := ty.FieldByName(fieldName)
 	if !ok {
 		return "", fmt.Errorf("no such field: %s in obj", fieldName)
 	}
@@ -232,6 +261,9 @@ func GetType(obj interface{}) reflect.Type {
 	}
 	if v, ok := obj.(reflect.Value); ok {
 		return v.Type()
+	}
+	if reflect.TypeOf(obj).Kind() == reflect.Ptr {
+		return reflect.TypeOf(obj).Elem()
 	}
 	return reflect.TypeOf(obj)
 }
