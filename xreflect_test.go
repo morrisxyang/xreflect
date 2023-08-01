@@ -9,10 +9,17 @@ import (
 )
 
 type Person struct {
-	Name   string `json:"name"`
-	Age    int    `json:"age"`
-	phone  string `json:"phone"`
-	Person *Person
+	Name      string `json:"name"`
+	Age       int    `json:"age"`
+	PtrPerson *Person
+
+	// private field
+	phone string `json:"phone"`
+
+	// anonymous fields
+	int
+	string
+	*Person
 }
 
 type Country struct {
@@ -124,11 +131,11 @@ func TestSetField(t *testing.T) {
 	assert.Equal(t, err, nil)
 	assert.Equal(t, p.Name, "John")
 
-	err = SetField(p, "Person", &Person{
+	err = SetField(p, "PtrPerson", &Person{
 		Name: "Mike",
 	})
 	assert.Equal(t, err, nil)
-	assert.Equal(t, p.Person.Name, "Mike")
+	assert.Equal(t, p.PtrPerson.Name, "Mike")
 }
 
 func TestSetPrivateField(t *testing.T) {
@@ -158,11 +165,11 @@ func TestSetPrivateField(t *testing.T) {
 	assert.Equal(t, err, nil)
 	assert.Equal(t, p.Name, "John")
 
-	err = SetPrivateField(p, "Person", &Person{
+	err = SetPrivateField(p, "PtrPerson", &Person{
 		Name: "Mike",
 	})
 	assert.Equal(t, err, nil)
-	assert.Equal(t, p.Person.Name, "Mike")
+	assert.Equal(t, p.PtrPerson.Name, "Mike")
 }
 
 func TestSetEmbedStructField(t *testing.T) {
@@ -349,6 +356,22 @@ func TestGetStructField(t *testing.T) {
 	st, err = GetStructField(p, "phone")
 	assert.Equal(t, nil, err)
 	assert.Equal(t, "phone", st.Name)
+	assert.Equal(t, "github.com/morrisxyang/xreflect", st.PkgPath)
+
+	st, err = GetStructField(p, "int")
+	assert.Equal(t, nil, err)
+	assert.Equal(t, "int", st.Name)
+	assert.Equal(t, "github.com/morrisxyang/xreflect", st.PkgPath)
+
+	st, err = GetStructField(p, "string")
+	assert.Equal(t, nil, err)
+	assert.Equal(t, "string", st.Name)
+	assert.Equal(t, "github.com/morrisxyang/xreflect", st.PkgPath)
+
+	st, err = GetStructField(p, "Person")
+	assert.Equal(t, nil, err)
+	assert.Equal(t, "Person", st.Name)
+	assert.Equal(t, "", st.PkgPath)
 }
 
 func TestGetStructFieldTag(t *testing.T) {
