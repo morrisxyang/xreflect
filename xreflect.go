@@ -99,8 +99,8 @@ func SetPrivateField(obj interface{}, fieldName string, fieldValue interface{}) 
 	return nil
 }
 
-// SetEmbedStructField 设置嵌套的结构体字段, obj 必须是指针
-func SetEmbedStructField(obj interface{}, fieldPath string, fieldValue interface{}) error {
+// SetEmbedField 设置嵌套的结构体字段, obj 必须是指针
+func SetEmbedField(obj interface{}, fieldPath string, fieldValue interface{}) error {
 	if obj == nil {
 		return errors.New("obj must not be nil")
 	}
@@ -202,6 +202,41 @@ func GetFieldTypeStr(obj interface{}, name string) (string, error) {
 	return field.Type().String(), nil
 }
 
+// GetEmbedField ...
+func GetEmbedField(obj interface{}, fieldPath string) (reflect.Value, error) {
+	var empty reflect.Value
+	if obj == nil {
+		return empty, errors.New("obj must not be nil")
+	}
+	target := GetValue(obj)
+	if !isSupportedKind(target.Kind(), []reflect.Kind{reflect.Struct}) {
+		return empty, errors.New("obj must be struct")
+	}
+	if fieldPath == "" {
+		return empty, errors.New("field path must not be empty")
+	}
+
+	fieldNames := strings.Split(fieldPath, ".")
+	for _, fieldName := range fieldNames {
+		if fieldName == "" {
+			return empty, fmt.Errorf("field path:%s is invalid", fieldPath)
+		}
+		if target.Kind() == reflect.Pointer {
+			target = reflect.ValueOf(target.Interface()).Elem()
+		}
+		if !isSupportedKind(target.Kind(), []reflect.Kind{reflect.Struct}) {
+			return empty, fmt.Errorf("field %s is not struct", target)
+		}
+
+		target = target.FieldByName(fieldName)
+		if !target.IsValid() {
+			return empty, fmt.Errorf("no such field: %s", fieldName)
+		}
+	}
+
+	return target, nil
+}
+
 // GetStructField 获取结构体的字段
 func GetStructField(obj interface{}, fieldName string) (reflect.StructField, error) {
 	var empty reflect.StructField
@@ -219,16 +254,6 @@ func GetStructField(obj interface{}, fieldName string) (reflect.StructField, err
 		return empty, fmt.Errorf("no such field: %s in obj", fieldName)
 	}
 	return field, nil
-}
-
-// GetStructFields 获取结构体的字段
-func GetStructFields(obj interface{}) (res []reflect.StructField) {
-	t := GetType(obj)
-
-	for i := 0; i < t.NumField(); i++ {
-		res = append(res, t.Field(i))
-	}
-	return res
 }
 
 // GetStructFieldTag returns the provided obj field tag value.

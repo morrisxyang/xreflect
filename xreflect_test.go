@@ -172,18 +172,18 @@ func TestSetPrivateField(t *testing.T) {
 	assert.Equal(t, p.PtrPerson.Name, "Mike")
 }
 
-func TestSetEmbedStructField(t *testing.T) {
+func TestSetEmbedField(t *testing.T) {
 	// first level
 	country := newCountry()
-	err := SetEmbedStructField(&country, "ID", 1)
+	err := SetEmbedField(&country, "ID", 1)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, country.ID, 1)
 
-	err = SetEmbedStructField(&country, "Name", "B country")
+	err = SetEmbedField(&country, "Name", "B country")
 	assert.Equal(t, err, nil)
 	assert.Equal(t, country.Name, "B country")
 
-	err = SetEmbedStructField(&country, "City", City{
+	err = SetEmbedField(&country, "City", City{
 		PtrTown: nil,
 		Town:    Town{Int: 1},
 	})
@@ -193,7 +193,7 @@ func TestSetEmbedStructField(t *testing.T) {
 		Town:    Town{Int: 1},
 	})
 
-	err = SetEmbedStructField(&country, "PtrCity", &City{
+	err = SetEmbedField(&country, "PtrCity", &City{
 		PtrTown: nil,
 		Town:    Town{Int: 1},
 	})
@@ -205,72 +205,72 @@ func TestSetEmbedStructField(t *testing.T) {
 
 	// three level struct
 	country = newCountry()
-	err = SetEmbedStructField(&country, "City.Town.Int", 1)
+	err = SetEmbedField(&country, "City.Town.Int", 1)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, country.City.Town.Int, 1)
 
-	err = SetEmbedStructField(&country, "City.Town.Str", "Now")
+	err = SetEmbedField(&country, "City.Town.Str", "Now")
 	assert.Equal(t, err, nil)
 	assert.Equal(t, country.City.Town.Str, "Now")
 
-	err = SetEmbedStructField(&country, "City.Town.Bool", true)
+	err = SetEmbedField(&country, "City.Town.Bool", true)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, country.City.Town.Bool, true)
 
-	err = SetEmbedStructField(&country, "City.Town.Strs", []string{"A", "B"})
+	err = SetEmbedField(&country, "City.Town.Strs", []string{"A", "B"})
 	assert.Equal(t, err, nil)
 	assert.Equal(t, country.City.Town.Strs, []string{"A", "B"})
 
 	// three level ptr
 	country = newCountry()
-	err = SetEmbedStructField(&country, "PtrCity.PtrTown.Int", 1)
+	err = SetEmbedField(&country, "PtrCity.PtrTown.Int", 1)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, country.PtrCity.PtrTown.Int, 1)
 
-	err = SetEmbedStructField(&country, "PtrCity.PtrTown.Str", "Now")
+	err = SetEmbedField(&country, "PtrCity.PtrTown.Str", "Now")
 	assert.Equal(t, err, nil)
 	assert.Equal(t, country.PtrCity.PtrTown.Str, "Now")
 
-	err = SetEmbedStructField(&country, "PtrCity.PtrTown.Bool", true)
+	err = SetEmbedField(&country, "PtrCity.PtrTown.Bool", true)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, country.PtrCity.PtrTown.Bool, true)
 
-	err = SetEmbedStructField(&country, "PtrCity.PtrTown.Strs", []string{"A", "B"})
+	err = SetEmbedField(&country, "PtrCity.PtrTown.Strs", []string{"A", "B"})
 	assert.Equal(t, err, nil)
 	assert.Equal(t, country.PtrCity.PtrTown.Strs, []string{"A", "B"})
 
 	// three level mix struct and ptr
 	country = newCountry()
-	err = SetEmbedStructField(&country, "City.PtrTown.Int", 1)
+	err = SetEmbedField(&country, "City.PtrTown.Int", 1)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, country.City.PtrTown.Int, 1)
 
-	err = SetEmbedStructField(&country, "City.PtrTown.Str", "Now")
+	err = SetEmbedField(&country, "City.PtrTown.Str", "Now")
 	assert.Equal(t, err, nil)
 	assert.Equal(t, country.City.PtrTown.Str, "Now")
 
-	err = SetEmbedStructField(&country, "City.PtrTown.Bool", true)
+	err = SetEmbedField(&country, "City.PtrTown.Bool", true)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, country.City.PtrTown.Bool, true)
 
-	err = SetEmbedStructField(&country, "City.PtrTown.Strs", []string{"A", "B"})
+	err = SetEmbedField(&country, "City.PtrTown.Strs", []string{"A", "B"})
 	assert.Equal(t, err, nil)
 	assert.Equal(t, country.City.PtrTown.Strs, []string{"A", "B"})
 
 	country = newCountry()
-	err = SetEmbedStructField(&country, "PtrCity.Town.Int", 1)
+	err = SetEmbedField(&country, "PtrCity.Town.Int", 1)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, country.PtrCity.Town.Int, 1)
 
-	err = SetEmbedStructField(&country, "PtrCity.Town.Str", "Now")
+	err = SetEmbedField(&country, "PtrCity.Town.Str", "Now")
 	assert.Equal(t, err, nil)
 	assert.Equal(t, country.PtrCity.Town.Str, "Now")
 
-	err = SetEmbedStructField(&country, "PtrCity.Town.Bool", true)
+	err = SetEmbedField(&country, "PtrCity.Town.Bool", true)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, country.PtrCity.Town.Bool, true)
 
-	err = SetEmbedStructField(&country, "PtrCity.Town.Strs", []string{"A", "B"})
+	err = SetEmbedField(&country, "PtrCity.Town.Strs", []string{"A", "B"})
 	assert.Equal(t, err, nil)
 	assert.Equal(t, country.PtrCity.Town.Strs, []string{"A", "B"})
 }
