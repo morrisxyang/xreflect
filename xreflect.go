@@ -143,7 +143,7 @@ func SetEmbedField(obj interface{}, fieldPath string, fieldValue interface{}) er
 }
 
 // GetField ...
-func GetField(obj interface{}, name string) (reflect.Value, error) {
+func GetField(obj interface{}, fieldName string) (reflect.Value, error) {
 	var empty reflect.Value
 	if obj == nil {
 		return empty, errors.New("obj must not be nil")
@@ -154,17 +154,17 @@ func GetField(obj interface{}, name string) (reflect.Value, error) {
 		return empty, errors.New("obj must be struct")
 	}
 
-	field := objValue.FieldByName(name)
+	field := objValue.FieldByName(fieldName)
 	if !field.IsValid() {
-		return empty, fmt.Errorf("no such field: %s", name)
+		return empty, fmt.Errorf("no such field: %s", fieldName)
 	}
 
 	return field, nil
 }
 
 // GetFieldValue ...
-func GetFieldValue(obj interface{}, name string) (interface{}, error) {
-	field, err := GetField(obj, name)
+func GetFieldValue(obj interface{}, fieldName string) (interface{}, error) {
+	field, err := GetField(obj, fieldName)
 	if err != nil {
 		return nil, err
 	}
@@ -173,8 +173,8 @@ func GetFieldValue(obj interface{}, name string) (interface{}, error) {
 }
 
 // GetFieldKind ...
-func GetFieldKind(obj interface{}, name string) (reflect.Kind, error) {
-	field, err := GetField(obj, name)
+func GetFieldKind(obj interface{}, fieldName string) (reflect.Kind, error) {
+	field, err := GetField(obj, fieldName)
 	if err != nil {
 		return reflect.Invalid, err
 	}
@@ -183,8 +183,8 @@ func GetFieldKind(obj interface{}, name string) (reflect.Kind, error) {
 }
 
 // GetFieldType ...
-func GetFieldType(obj interface{}, name string) (reflect.Type, error) {
-	field, err := GetField(obj, name)
+func GetFieldType(obj interface{}, fieldName string) (reflect.Type, error) {
+	field, err := GetField(obj, fieldName)
 	if err != nil {
 		return nil, err
 	}
@@ -193,8 +193,8 @@ func GetFieldType(obj interface{}, name string) (reflect.Type, error) {
 }
 
 // GetFieldTypeStr ...
-func GetFieldTypeStr(obj interface{}, name string) (string, error) {
-	field, err := GetField(obj, name)
+func GetFieldTypeStr(obj interface{}, fieldName string) (string, error) {
+	field, err := GetField(obj, fieldName)
 	if err != nil {
 		return "", err
 	}
@@ -256,21 +256,23 @@ func GetStructField(obj interface{}, fieldName string) (reflect.StructField, err
 	return field, nil
 }
 
+// HasField checks if the provided `obj` struct has field named `name`.
+// The `obj` can either be a structure or pointer to structure.
+func HasField(obj interface{}, fieldName string) (bool, error) {
+	_, err := GetStructField(obj, fieldName)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
 // GetStructFieldTag returns the provided obj field tag value.
 // The `obj` parameter can either be a structure or pointer to structure.
 func GetStructFieldTag(obj interface{}, fieldName, tagKey string) (string, error) {
-	if obj == nil {
-		return "", errors.New("obj must not be nil")
-	}
-
-	ty := GetType(obj)
-	if !isSupportedKind(ty.Kind(), []reflect.Kind{reflect.Struct}) {
-		return "", errors.New("obj must be struct")
-	}
-
-	structField, ok := ty.FieldByName(fieldName)
-	if !ok {
-		return "", fmt.Errorf("no such field: %s in obj", fieldName)
+	structField, err := GetStructField(obj, fieldName)
+	if err != nil {
+		return "", err
 	}
 
 	return structField.Tag.Get(tagKey), nil
