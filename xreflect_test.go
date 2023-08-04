@@ -275,7 +275,7 @@ func TestSetEmbedField(t *testing.T) {
 	assert.Equal(t, country.PtrCity.Town.Strs, []string{"A", "B"})
 }
 
-func TestGetField(t *testing.T) {
+func TestGetFieldXMethods(t *testing.T) {
 	type args struct {
 		obj  interface{}
 		name string
@@ -302,17 +302,19 @@ func TestGetField(t *testing.T) {
 				name: "Address",
 			},
 			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
-				return assert.EqualError(t, err, "no such field: Address")
+				assert.EqualError(t, err, "no such field: Address")
+				return false
 			},
 		},
 		{
-			name: "nil",
+			name: "Nil",
 			args: args{
 				obj:  nil,
 				name: "Name",
 			},
 			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
-				return assert.EqualError(t, err, "obj must not be nil")
+				assert.EqualError(t, err, "obj must not be nil")
+				return false
 			},
 		},
 		{
@@ -322,7 +324,8 @@ func TestGetField(t *testing.T) {
 				name: "Name",
 			},
 			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
-				return assert.EqualError(t, err, "obj must be struct")
+				assert.EqualError(t, err, "obj must be struct")
+				return false
 			},
 		},
 	}
@@ -334,8 +337,30 @@ func TestGetField(t *testing.T) {
 				return
 			}
 			assert.Equalf(t, tt.want, got, "GetFieldValue(%v, %v)", tt.args.obj, tt.args.name)
+
+			got, err = GetFieldKind(tt.args.obj, tt.args.name)
+			if !tt.wantErr(t, err, fmt.Sprintf("GetFieldKind(%v, %v)", tt.args.obj, tt.args.name)) {
+				return
+			}
+			assert.Equalf(t, reflect.TypeOf(tt.want).Kind(), got, "GetFieldKind(%v, %v)", tt.args.obj, tt.args.name)
+
+			got, err = GetFieldType(tt.args.obj, tt.args.name)
+			if !tt.wantErr(t, err, fmt.Sprintf("GetFieldType(%v, %v)", tt.args.obj, tt.args.name)) {
+				return
+			}
+			assert.Equalf(t, reflect.TypeOf(tt.want), got, "GetFieldType(%v, %v)", tt.args.obj, tt.args.name)
+
+			got, err = GetFieldTypeStr(tt.args.obj, tt.args.name)
+			if !tt.wantErr(t, err, fmt.Sprintf("GetFieldTypeStr(%v, %v)", tt.args.obj, tt.args.name)) {
+				return
+			}
+			assert.Equalf(t, reflect.TypeOf(tt.want).String(), got, "GetFieldTypeStr(%v, %v)", tt.args.obj, tt.args.name)
 		})
 	}
+}
+
+func TestGetEmbedField(t *testing.T) {
+
 }
 
 func TestGetStructField(t *testing.T) {
