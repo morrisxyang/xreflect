@@ -237,6 +237,46 @@ func GetEmbedField(obj interface{}, fieldPath string) (reflect.Value, error) {
 	return target, nil
 }
 
+// GetEmbedFieldValue ...
+func GetEmbedFieldValue(obj interface{}, fieldPath string) (interface{}, error) {
+	field, err := GetEmbedField(obj, fieldPath)
+	if err != nil {
+		return nil, err
+	}
+
+	return field.Interface(), nil
+}
+
+// GetEmbedFieldKind ...
+func GetEmbedFieldKind(obj interface{}, fieldPath string) (reflect.Kind, error) {
+	field, err := GetField(obj, fieldPath)
+	if err != nil {
+		return reflect.Invalid, err
+	}
+
+	return field.Kind(), nil
+}
+
+// GetEmbedFieldType ...
+func GetEmbedFieldType(obj interface{}, fieldPath string) (reflect.Type, error) {
+	field, err := GetField(obj, fieldPath)
+	if err != nil {
+		return nil, err
+	}
+
+	return field.Type(), nil
+}
+
+// GetEmbedFieldTypeStr ...
+func GetEmbedFieldTypeStr(obj interface{}, fieldPath string) (string, error) {
+	field, err := GetField(obj, fieldPath)
+	if err != nil {
+		return "", err
+	}
+
+	return field.Type().String(), nil
+}
+
 // GetStructField 获取结构体的字段
 func GetStructField(obj interface{}, fieldName string) (reflect.StructField, error) {
 	var empty reflect.StructField
@@ -254,6 +294,36 @@ func GetStructField(obj interface{}, fieldName string) (reflect.StructField, err
 		return empty, fmt.Errorf("no such field: %s in obj", fieldName)
 	}
 	return field, nil
+}
+
+// GetStructFieldKind ...
+func GetStructFieldKind(obj interface{}, fieldName string) (reflect.Kind, error) {
+	field, err := GetStructField(obj, fieldName)
+	if err != nil {
+		return reflect.Invalid, err
+	}
+
+	return field.Type.Kind(), nil
+}
+
+// GetStructFieldType ...
+func GetStructFieldType(obj interface{}, fieldName string) (reflect.Type, error) {
+	field, err := GetStructField(obj, fieldName)
+	if err != nil {
+		return nil, err
+	}
+
+	return field.Type, nil
+}
+
+// GetStructFieldTypeStr ...
+func GetStructFieldTypeStr(obj interface{}, fieldName string) (string, error) {
+	field, err := GetStructField(obj, fieldName)
+	if err != nil {
+		return "", err
+	}
+
+	return field.Type.String(), nil
 }
 
 // HasField checks if the provided `obj` struct has field named `name`.
