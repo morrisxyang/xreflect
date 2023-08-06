@@ -175,13 +175,33 @@ func TestSetPrivateField(t *testing.T) {
 func TestSetEmbedField(t *testing.T) {
 	// first level
 	country := newCountry()
-	err := SetEmbedField(&country, "ID", 1)
+	err := SetEmbedField(&country, "ID1", 1)
+	assert.EqualError(t, err, "field: ID1 is invalid")
+
+	err = SetEmbedField(nil, "ID", 1)
+	assert.EqualError(t, err, "obj must not be nil")
+
+	err = SetEmbedField("123", "ID", 1)
+	assert.EqualError(t, err, "obj must be pointer")
+
+	err = SetEmbedField(&country, "", 1)
+	assert.EqualError(t, err, "field path must not be empty")
+
+	err = SetEmbedField(&country, ".Town.Int", 1)
+	assert.EqualError(t, err, "field path:.Town.Int is invalid")
+
+	err = SetEmbedField(&country, "ID", 1)
 	assert.Equal(t, err, nil)
 	assert.Equal(t, country.ID, 1)
 
 	err = SetEmbedField(&country, "Name", "B country")
 	assert.Equal(t, err, nil)
 	assert.Equal(t, country.Name, "B country")
+
+	type myString string
+	err = SetEmbedField(&country, "Name", myString("C country"))
+	assert.Equal(t, err, nil)
+	assert.Equal(t, country.Name, "C country")
 
 	err = SetEmbedField(&country, "City", City{
 		PtrTown: nil,
@@ -222,6 +242,11 @@ func TestSetEmbedField(t *testing.T) {
 	assert.Equal(t, country.City.Town.Strs, []string{"A", "B"})
 
 	// three level ptr
+	c := &Country{}
+	err = SetEmbedField(c, "PtrCity.PtrTown.Int", 1)
+	assert.Equal(t, err, nil)
+	assert.Equal(t, c.PtrCity.PtrTown.Int, 1)
+
 	country = newCountry()
 	err = SetEmbedField(&country, "PtrCity.PtrTown.Int", 1)
 	assert.Equal(t, err, nil)
@@ -337,24 +362,31 @@ func TestGetFieldXMethods(t *testing.T) {
 				return
 			}
 			assert.Equalf(t, tt.want, got, "GetFieldValue(%v, %v)", tt.args.obj, tt.args.name)
+		})
 
-			got, err = GetFieldKind(tt.args.obj, tt.args.name)
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := GetFieldKind(tt.args.obj, tt.args.name)
 			if !tt.wantErr(t, err, fmt.Sprintf("GetFieldKind(%v, %v)", tt.args.obj, tt.args.name)) {
 				return
 			}
 			assert.Equalf(t, reflect.TypeOf(tt.want).Kind(), got, "GetFieldKind(%v, %v)", tt.args.obj, tt.args.name)
 
-			got, err = GetFieldType(tt.args.obj, tt.args.name)
+		})
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := GetFieldType(tt.args.obj, tt.args.name)
 			if !tt.wantErr(t, err, fmt.Sprintf("GetFieldType(%v, %v)", tt.args.obj, tt.args.name)) {
 				return
 			}
 			assert.Equalf(t, reflect.TypeOf(tt.want), got, "GetFieldType(%v, %v)", tt.args.obj, tt.args.name)
 
-			got, err = GetFieldTypeStr(tt.args.obj, tt.args.name)
+		})
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := GetFieldTypeStr(tt.args.obj, tt.args.name)
 			if !tt.wantErr(t, err, fmt.Sprintf("GetFieldTypeStr(%v, %v)", tt.args.obj, tt.args.name)) {
 				return
 			}
 			assert.Equalf(t, reflect.TypeOf(tt.want).String(), got, "GetFieldTypeStr(%v, %v)", tt.args.obj, tt.args.name)
+
 		})
 	}
 }
@@ -483,29 +515,36 @@ func TestGetEmbedFieldXMethods(t *testing.T) {
 				return
 			}
 			assert.Equalf(t, tt.want, got, "GetFieldValue(%v, %v)", tt.args.obj, tt.args.name)
+		})
 
-			got, err = GetEmbedFieldKind(tt.args.obj, tt.args.name)
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := GetEmbedFieldKind(tt.args.obj, tt.args.name)
 			if !tt.wantErr(t, err, fmt.Sprintf("GetEmbedFieldKind(%v, %v)", tt.args.obj, tt.args.name)) {
 				return
 			}
 			assert.Equalf(t, reflect.TypeOf(tt.want).Kind(), got, "GetFieldKind(%v, %v)", tt.args.obj, tt.args.name)
+		})
 
-			got, err = GetEmbedFieldType(tt.args.obj, tt.args.name)
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := GetEmbedFieldType(tt.args.obj, tt.args.name)
 			if !tt.wantErr(t, err, fmt.Sprintf("GetEmbedFieldType(%v, %v)", tt.args.obj, tt.args.name)) {
 				return
 			}
 			assert.Equalf(t, reflect.TypeOf(tt.want), got, "GetFieldType(%v, %v)", tt.args.obj, tt.args.name)
+		})
 
-			got, err = GetEmbedFieldTypeStr(tt.args.obj, tt.args.name)
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := GetEmbedFieldTypeStr(tt.args.obj, tt.args.name)
 			if !tt.wantErr(t, err, fmt.Sprintf("GetEmbedFieldTypeStr(%v, %v)", tt.args.obj, tt.args.name)) {
 				return
 			}
 			assert.Equalf(t, reflect.TypeOf(tt.want).String(), got, "GetFieldTypeStr(%v, %v)", tt.args.obj, tt.args.name)
+
 		})
 	}
 }
 
-func TestGetStructField(t *testing.T) {
+func TestGetStructFieldXMethods(t *testing.T) {
 	_, err := GetStructField(nil, "Name")
 	assert.EqualError(t, err, "obj must not be nil")
 
@@ -539,6 +578,22 @@ func TestGetStructField(t *testing.T) {
 	assert.Equal(t, nil, err)
 	assert.Equal(t, "Person", st.Name)
 	assert.Equal(t, "", st.PkgPath)
+
+	k, err := GetStructFieldKind(p, "Name")
+	assert.Equal(t, nil, err)
+	assert.Equal(t, reflect.String, k)
+
+	ty, err := GetStructFieldType(p, "Age")
+	assert.Equal(t, nil, err)
+	assert.Equal(t, reflect.Int, ty.Kind())
+
+	ts, err := GetStructFieldTypeStr(p, "Age")
+	assert.Equal(t, nil, err)
+	assert.Equal(t, "int", ts)
+
+	b, err := HasField(p, "Age")
+	assert.Equal(t, nil, err)
+	assert.Equal(t, true, b)
 }
 
 func TestGetStructFieldTag(t *testing.T) {
@@ -723,6 +778,10 @@ func TestGetValue(t *testing.T) {
 			input:    ii,
 			expected: reflect.ValueOf(ii).Elem(),
 		},
+		{name: "reflect.Value",
+			input:    reflect.ValueOf(1),
+			expected: reflect.ValueOf(1),
+		},
 		{name: "Nil",
 			input:    nil,
 			expected: reflect.Value{},
@@ -752,6 +811,7 @@ func TestGetValuePenetrateElem(t *testing.T) {
 		input    interface{}
 		expected reflect.Value
 	}{
+		{"nil", nil, reflect.Value{}},
 		{"***int", i3, reflect.ValueOf(i1).Elem()},
 		{"int", i0, reflect.ValueOf(i0)},
 	}
