@@ -249,7 +249,7 @@ func GetEmbedFieldValue(obj interface{}, fieldPath string) (interface{}, error) 
 
 // GetEmbedFieldKind ...
 func GetEmbedFieldKind(obj interface{}, fieldPath string) (reflect.Kind, error) {
-	field, err := GetField(obj, fieldPath)
+	field, err := GetEmbedField(obj, fieldPath)
 	if err != nil {
 		return reflect.Invalid, err
 	}
@@ -259,7 +259,7 @@ func GetEmbedFieldKind(obj interface{}, fieldPath string) (reflect.Kind, error) 
 
 // GetEmbedFieldType ...
 func GetEmbedFieldType(obj interface{}, fieldPath string) (reflect.Type, error) {
-	field, err := GetField(obj, fieldPath)
+	field, err := GetEmbedField(obj, fieldPath)
 	if err != nil {
 		return nil, err
 	}
@@ -269,7 +269,7 @@ func GetEmbedFieldType(obj interface{}, fieldPath string) (reflect.Type, error) 
 
 // GetEmbedFieldTypeStr ...
 func GetEmbedFieldTypeStr(obj interface{}, fieldPath string) (string, error) {
-	field, err := GetField(obj, fieldPath)
+	field, err := GetEmbedField(obj, fieldPath)
 	if err != nil {
 		return "", err
 	}
