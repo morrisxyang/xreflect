@@ -58,6 +58,38 @@ func TestGetStructFieldXMethods(t *testing.T) {
 	b, err := HasField(p, "Age")
 	assert.Equal(t, nil, err)
 	assert.Equal(t, true, b)
+
+	_, err = GetStructFields(nil)
+	assert.EqualError(t, err, "obj must not be nil")
+
+	_, err = GetStructFields("123")
+	assert.EqualError(t, err, "obj must be struct")
+
+	sfs, err := GetStructFields(p)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 7, len(sfs))
+
+	sfs, err = SelectStructFields(nil, nil)
+	assert.EqualError(t, err, "obj must not be nil")
+
+	sfs, err = SelectStructFields("123", nil)
+	assert.EqualError(t, err, "obj must be struct")
+
+	sfs, err = GetAnonymousStructFields(p)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 3, len(sfs))
+
+	err = RangeStructFields(nil, nil)
+	assert.EqualError(t, err, "obj must not be nil")
+
+	err = RangeStructFields("123", nil)
+	assert.EqualError(t, err, "obj must be struct")
+
+	err = RangeStructFields(p, func(i int, field reflect.StructField) bool {
+		return true
+	})
+	assert.Equal(t, nil, err)
+
 }
 
 func TestGetStructFieldTag(t *testing.T) {

@@ -47,7 +47,8 @@ func GetFieldKind(obj interface{}, fieldName string) (reflect.Kind, error) {
 	return field.Kind(), nil
 }
 
-// GetFieldType ...
+// GetFieldType returns the kind of the provided obj field.
+// The `obj` can either be a structure or pointer to structure.
 func GetFieldType(obj interface{}, fieldName string) (reflect.Type, error) {
 	field, err := GetField(obj, fieldName)
 	if err != nil {
@@ -128,7 +129,6 @@ func GetEmbedFieldType(obj interface{}, fieldPath string) (reflect.Type, error) 
 	if err != nil {
 		return nil, err
 	}
-
 	return field.Type(), nil
 }
 

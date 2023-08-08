@@ -78,6 +78,70 @@ func GetStructFieldTag(obj interface{}, fieldName, tagKey string) (string, error
 	return structField.Tag.Get(tagKey), nil
 }
 
+// GetStructFields 获取结构体的字段
+func GetStructFields(obj interface{}) ([]reflect.StructField, error) {
+	if obj == nil {
+		return nil, errors.New("obj must not be nil")
+	}
+
+	ty := GetType(obj)
+	if !isSupportedKind(ty.Kind(), []reflect.Kind{reflect.Struct}) {
+		return nil, errors.New("obj must be struct")
+	}
+
+	var res []reflect.StructField
+	for i := 0; i < ty.NumField(); i++ {
+		res = append(res, ty.Field(i))
+	}
+	return res, nil
+}
+
+// SelectStructFields ...
+func SelectStructFields(obj interface{}, f func(int, reflect.StructField) bool) ([]reflect.StructField, error) {
+	if obj == nil {
+		return nil, errors.New("obj must not be nil")
+	}
+
+	ty := GetType(obj)
+	if !isSupportedKind(ty.Kind(), []reflect.Kind{reflect.Struct}) {
+		return nil, errors.New("obj must be struct")
+	}
+
+	var res []reflect.StructField
+	for i := 0; i < ty.NumField(); i++ {
+		if f(i, ty.Field(i)) {
+			res = append(res, ty.Field(i))
+		}
+	}
+	return res, nil
+}
+
+// RangeStructFields ...
+func RangeStructFields(obj interface{}, f func(int, reflect.StructField) bool) error {
+	if obj == nil {
+		return errors.New("obj must not be nil")
+	}
+
+	ty := GetType(obj)
+	if !isSupportedKind(ty.Kind(), []reflect.Kind{reflect.Struct}) {
+		return errors.New("obj must be struct")
+	}
+
+	for i := 0; i < ty.NumField(); i++ {
+		if !f(i, ty.Field(i)) {
+			break
+		}
+	}
+	return nil
+}
+
+// GetAnonymousStructFields 获取匿名结构体字段
+func GetAnonymousStructFields(obj interface{}) ([]reflect.StructField, error) {
+	return SelectStructFields(obj, func(i int, field reflect.StructField) bool {
+		return field.Anonymous
+	})
+}
+
 // GetEmbedStructField ...
 func GetEmbedStructField(obj interface{}, fieldPath string) (reflect.StructField, error) {
 	var empty reflect.StructField
