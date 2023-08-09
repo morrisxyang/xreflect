@@ -65,35 +65,35 @@ func TestGetFieldXMethods(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetFieldValue(tt.args.obj, tt.args.name)
-			if !tt.wantErr(t, err, fmt.Sprintf("GetFieldValue(%v, %v)", tt.args.obj, tt.args.name)) {
+			got, err := FieldValue(tt.args.obj, tt.args.name)
+			if !tt.wantErr(t, err, fmt.Sprintf("FieldValue(%v, %v)", tt.args.obj, tt.args.name)) {
 				return
 			}
-			assert.Equalf(t, tt.want, got, "GetFieldValue(%v, %v)", tt.args.obj, tt.args.name)
+			assert.Equalf(t, tt.want, got, "FieldValue(%v, %v)", tt.args.obj, tt.args.name)
 		})
 
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetFieldKind(tt.args.obj, tt.args.name)
-			if !tt.wantErr(t, err, fmt.Sprintf("GetFieldKind(%v, %v)", tt.args.obj, tt.args.name)) {
+			got, err := FieldKind(tt.args.obj, tt.args.name)
+			if !tt.wantErr(t, err, fmt.Sprintf("FieldKind(%v, %v)", tt.args.obj, tt.args.name)) {
 				return
 			}
-			assert.Equalf(t, reflect.TypeOf(tt.want).Kind(), got, "GetFieldKind(%v, %v)", tt.args.obj, tt.args.name)
+			assert.Equalf(t, reflect.TypeOf(tt.want).Kind(), got, "FieldKind(%v, %v)", tt.args.obj, tt.args.name)
 
 		})
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetFieldType(tt.args.obj, tt.args.name)
-			if !tt.wantErr(t, err, fmt.Sprintf("GetFieldType(%v, %v)", tt.args.obj, tt.args.name)) {
+			got, err := FieldType(tt.args.obj, tt.args.name)
+			if !tt.wantErr(t, err, fmt.Sprintf("FieldType(%v, %v)", tt.args.obj, tt.args.name)) {
 				return
 			}
-			assert.Equalf(t, reflect.TypeOf(tt.want), got, "GetFieldType(%v, %v)", tt.args.obj, tt.args.name)
+			assert.Equalf(t, reflect.TypeOf(tt.want), got, "FieldType(%v, %v)", tt.args.obj, tt.args.name)
 
 		})
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetFieldTypeStr(tt.args.obj, tt.args.name)
-			if !tt.wantErr(t, err, fmt.Sprintf("GetFieldTypeStr(%v, %v)", tt.args.obj, tt.args.name)) {
+			got, err := FieldTypeStr(tt.args.obj, tt.args.name)
+			if !tt.wantErr(t, err, fmt.Sprintf("FieldTypeStr(%v, %v)", tt.args.obj, tt.args.name)) {
 				return
 			}
-			assert.Equalf(t, reflect.TypeOf(tt.want).String(), got, "GetFieldTypeStr(%v, %v)", tt.args.obj, tt.args.name)
+			assert.Equalf(t, reflect.TypeOf(tt.want).String(), got, "FieldTypeStr(%v, %v)", tt.args.obj, tt.args.name)
 
 		})
 	}
@@ -240,35 +240,35 @@ func TestGetEmbedFieldXMethods(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetEmbedFieldValue(tt.args.obj, tt.args.name)
-			if !tt.wantErr(t, err, fmt.Sprintf("GetEmbedFieldValue(%v, %v)", tt.args.obj, tt.args.name)) {
+			got, err := EmbedFieldValue(tt.args.obj, tt.args.name)
+			if !tt.wantErr(t, err, fmt.Sprintf("EmbedFieldValue(%v, %v)", tt.args.obj, tt.args.name)) {
 				return
 			}
-			assert.Equalf(t, tt.want, got, "GetFieldValue(%v, %v)", tt.args.obj, tt.args.name)
+			assert.Equalf(t, tt.want, got, "FieldValue(%v, %v)", tt.args.obj, tt.args.name)
 		})
 
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetEmbedFieldKind(tt.args.obj, tt.args.name)
-			if !tt.wantErr(t, err, fmt.Sprintf("GetEmbedFieldKind(%v, %v)", tt.args.obj, tt.args.name)) {
+			got, err := EmbedFieldKind(tt.args.obj, tt.args.name)
+			if !tt.wantErr(t, err, fmt.Sprintf("EmbedFieldKind(%v, %v)", tt.args.obj, tt.args.name)) {
 				return
 			}
-			assert.Equalf(t, reflect.TypeOf(tt.want).Kind(), got, "GetFieldKind(%v, %v)", tt.args.obj, tt.args.name)
+			assert.Equalf(t, reflect.TypeOf(tt.want).Kind(), got, "FieldKind(%v, %v)", tt.args.obj, tt.args.name)
 		})
 
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetEmbedFieldType(tt.args.obj, tt.args.name)
-			if !tt.wantErr(t, err, fmt.Sprintf("GetEmbedFieldType(%v, %v)", tt.args.obj, tt.args.name)) {
+			got, err := EmbedFieldType(tt.args.obj, tt.args.name)
+			if !tt.wantErr(t, err, fmt.Sprintf("EmbedFieldType(%v, %v)", tt.args.obj, tt.args.name)) {
 				return
 			}
-			assert.Equalf(t, reflect.TypeOf(tt.want), got, "GetFieldType(%v, %v)", tt.args.obj, tt.args.name)
+			assert.Equalf(t, reflect.TypeOf(tt.want), got, "FieldType(%v, %v)", tt.args.obj, tt.args.name)
 		})
 
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetEmbedFieldTypeStr(tt.args.obj, tt.args.name)
-			if !tt.wantErr(t, err, fmt.Sprintf("GetEmbedFieldTypeStr(%v, %v)", tt.args.obj, tt.args.name)) {
+			got, err := EmbedFieldTypeStr(tt.args.obj, tt.args.name)
+			if !tt.wantErr(t, err, fmt.Sprintf("EmbedFieldTypeStr(%v, %v)", tt.args.obj, tt.args.name)) {
 				return
 			}
-			assert.Equalf(t, reflect.TypeOf(tt.want).String(), got, "GetFieldTypeStr(%v, %v)", tt.args.obj, tt.args.name)
+			assert.Equalf(t, reflect.TypeOf(tt.want).String(), got, "FieldTypeStr(%v, %v)", tt.args.obj, tt.args.name)
 
 		})
 	}

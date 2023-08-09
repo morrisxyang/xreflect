@@ -7,14 +7,14 @@ import (
 	"strings"
 )
 
-// GetField ...
-func GetField(obj interface{}, fieldName string) (reflect.Value, error) {
+// Field ...
+func Field(obj interface{}, fieldName string) (reflect.Value, error) {
 	var empty reflect.Value
 	if obj == nil {
 		return empty, errors.New("obj must not be nil")
 	}
 
-	objValue := GetValue(obj)
+	objValue := Value(obj)
 	if !isSupportedKind(objValue.Kind(), []reflect.Kind{reflect.Struct}) {
 		return empty, errors.New("obj must be struct")
 	}
@@ -27,9 +27,9 @@ func GetField(obj interface{}, fieldName string) (reflect.Value, error) {
 	return field, nil
 }
 
-// GetFieldValue ...
-func GetFieldValue(obj interface{}, fieldName string) (interface{}, error) {
-	field, err := GetField(obj, fieldName)
+// FieldValue ...
+func FieldValue(obj interface{}, fieldName string) (interface{}, error) {
+	field, err := Field(obj, fieldName)
 	if err != nil {
 		return nil, err
 	}
@@ -37,9 +37,9 @@ func GetFieldValue(obj interface{}, fieldName string) (interface{}, error) {
 	return field.Interface(), nil
 }
 
-// GetFieldKind ...
-func GetFieldKind(obj interface{}, fieldName string) (reflect.Kind, error) {
-	field, err := GetField(obj, fieldName)
+// FieldKind ...
+func FieldKind(obj interface{}, fieldName string) (reflect.Kind, error) {
+	field, err := Field(obj, fieldName)
 	if err != nil {
 		return reflect.Invalid, err
 	}
@@ -47,10 +47,10 @@ func GetFieldKind(obj interface{}, fieldName string) (reflect.Kind, error) {
 	return field.Kind(), nil
 }
 
-// GetFieldType returns the kind of the provided obj field.
+// FieldType returns the kind of the provided obj field.
 // The `obj` can either be a structure or pointer to structure.
-func GetFieldType(obj interface{}, fieldName string) (reflect.Type, error) {
-	field, err := GetField(obj, fieldName)
+func FieldType(obj interface{}, fieldName string) (reflect.Type, error) {
+	field, err := Field(obj, fieldName)
 	if err != nil {
 		return nil, err
 	}
@@ -58,9 +58,9 @@ func GetFieldType(obj interface{}, fieldName string) (reflect.Type, error) {
 	return field.Type(), nil
 }
 
-// GetFieldTypeStr ...
-func GetFieldTypeStr(obj interface{}, fieldName string) (string, error) {
-	field, err := GetField(obj, fieldName)
+// FieldTypeStr ...
+func FieldTypeStr(obj interface{}, fieldName string) (string, error) {
+	field, err := Field(obj, fieldName)
 	if err != nil {
 		return "", err
 	}
@@ -68,13 +68,13 @@ func GetFieldTypeStr(obj interface{}, fieldName string) (string, error) {
 	return field.Type().String(), nil
 }
 
-// GetEmbedField ...
-func GetEmbedField(obj interface{}, fieldPath string) (reflect.Value, error) {
+// EmbedField ...
+func EmbedField(obj interface{}, fieldPath string) (reflect.Value, error) {
 	var empty reflect.Value
 	if obj == nil {
 		return empty, errors.New("obj must not be nil")
 	}
-	target := GetValue(obj)
+	target := Value(obj)
 	if !isSupportedKind(target.Kind(), []reflect.Kind{reflect.Struct}) {
 		return empty, errors.New("obj must be struct")
 	}
@@ -103,9 +103,9 @@ func GetEmbedField(obj interface{}, fieldPath string) (reflect.Value, error) {
 	return target, nil
 }
 
-// GetEmbedFieldValue ...
-func GetEmbedFieldValue(obj interface{}, fieldPath string) (interface{}, error) {
-	field, err := GetEmbedField(obj, fieldPath)
+// EmbedFieldValue ...
+func EmbedFieldValue(obj interface{}, fieldPath string) (interface{}, error) {
+	field, err := EmbedField(obj, fieldPath)
 	if err != nil {
 		return nil, err
 	}
@@ -113,9 +113,9 @@ func GetEmbedFieldValue(obj interface{}, fieldPath string) (interface{}, error) 
 	return field.Interface(), nil
 }
 
-// GetEmbedFieldKind ...
-func GetEmbedFieldKind(obj interface{}, fieldPath string) (reflect.Kind, error) {
-	field, err := GetEmbedField(obj, fieldPath)
+// EmbedFieldKind ...
+func EmbedFieldKind(obj interface{}, fieldPath string) (reflect.Kind, error) {
+	field, err := EmbedField(obj, fieldPath)
 	if err != nil {
 		return reflect.Invalid, err
 	}
@@ -123,18 +123,18 @@ func GetEmbedFieldKind(obj interface{}, fieldPath string) (reflect.Kind, error) 
 	return field.Kind(), nil
 }
 
-// GetEmbedFieldType ...
-func GetEmbedFieldType(obj interface{}, fieldPath string) (reflect.Type, error) {
-	field, err := GetEmbedField(obj, fieldPath)
+// EmbedFieldType ...
+func EmbedFieldType(obj interface{}, fieldPath string) (reflect.Type, error) {
+	field, err := EmbedField(obj, fieldPath)
 	if err != nil {
 		return nil, err
 	}
 	return field.Type(), nil
 }
 
-// GetEmbedFieldTypeStr ...
-func GetEmbedFieldTypeStr(obj interface{}, fieldPath string) (string, error) {
-	field, err := GetEmbedField(obj, fieldPath)
+// EmbedFieldTypeStr ...
+func EmbedFieldTypeStr(obj interface{}, fieldPath string) (string, error) {
+	field, err := EmbedField(obj, fieldPath)
 	if err != nil {
 		return "", err
 	}

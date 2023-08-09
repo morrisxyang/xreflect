@@ -9,63 +9,63 @@ import (
 )
 
 func TestGetStructFieldXMethods(t *testing.T) {
-	_, err := GetStructField(nil, "Name")
+	_, err := StructField(nil, "Name")
 	assert.EqualError(t, err, "obj must not be nil")
 
-	_, err = GetStructField("", "Name")
+	_, err = StructField("", "Name")
 	assert.EqualError(t, err, "obj must be struct")
 
 	p := &Person{}
-	_, err = GetStructField(p, "Name1")
+	_, err = StructField(p, "Name1")
 	assert.EqualError(t, err, "no such field: Name1 in obj")
 
-	st, err := GetStructField(p, "Name")
+	st, err := StructField(p, "Name")
 	assert.Equal(t, nil, err)
 	assert.Equal(t, "Name", st.Name)
 
-	st, err = GetStructField(p, "phone")
+	st, err = StructField(p, "phone")
 	assert.Equal(t, nil, err)
 	assert.Equal(t, "phone", st.Name)
 	assert.Equal(t, "github.com/morrisxyang/xreflect", st.PkgPath)
 
-	st, err = GetStructField(p, "int")
+	st, err = StructField(p, "int")
 	assert.Equal(t, nil, err)
 	assert.Equal(t, "int", st.Name)
 	assert.Equal(t, "github.com/morrisxyang/xreflect", st.PkgPath)
 
-	st, err = GetStructField(p, "string")
+	st, err = StructField(p, "string")
 	assert.Equal(t, nil, err)
 	assert.Equal(t, "string", st.Name)
 	assert.Equal(t, "github.com/morrisxyang/xreflect", st.PkgPath)
 
-	st, err = GetStructField(p, "Person")
+	st, err = StructField(p, "Person")
 	assert.Equal(t, nil, err)
 	assert.Equal(t, "Person", st.Name)
 	assert.Equal(t, "", st.PkgPath)
 
-	k, err := GetStructFieldKind(p, "Name")
+	k, err := StructFieldKind(p, "Name")
 	assert.Equal(t, nil, err)
 	assert.Equal(t, reflect.String, k)
 
-	ty, err := GetStructFieldType(p, "Age")
+	ty, err := StructFieldType(p, "Age")
 	assert.Equal(t, nil, err)
 	assert.Equal(t, reflect.Int, ty.Kind())
 
-	ts, err := GetStructFieldTypeStr(p, "Age")
+	ts, err := StructFieldTypeStr(p, "Age")
 	assert.Equal(t, nil, err)
 	assert.Equal(t, "int", ts)
 
-	b, err := HasField(p, "Age")
+	b, err := HasStructField(p, "Age")
 	assert.Equal(t, nil, err)
 	assert.Equal(t, true, b)
 
-	_, err = GetStructFields(nil)
+	_, err = StructFields(nil)
 	assert.EqualError(t, err, "obj must not be nil")
 
-	_, err = GetStructFields("123")
+	_, err = StructFields("123")
 	assert.EqualError(t, err, "obj must be struct")
 
-	sfs, err := GetStructFields(p)
+	sfs, err := StructFields(p)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, 7, len(sfs))
 
@@ -75,7 +75,13 @@ func TestGetStructFieldXMethods(t *testing.T) {
 	sfs, err = SelectStructFields("123", nil)
 	assert.EqualError(t, err, "obj must be struct")
 
-	sfs, err = GetAnonymousStructFields(p)
+	sfs, err = SelectStructFields(p, func(i int, field reflect.StructField) bool {
+		return true
+	})
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 7, len(sfs))
+
+	sfs, err = AnonymousStructFields(p)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, 3, len(sfs))
 
@@ -159,11 +165,11 @@ func TestGetStructFieldTag(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetStructFieldTag(tt.args.obj, tt.args.fieldName, tt.args.tagKey)
-			if !tt.wantErr(t, err, fmt.Sprintf("GetStructFieldTag(%v, %v, %v)", tt.args.obj, tt.args.fieldName, tt.args.tagKey)) {
+			got, err := StructFieldTagValue(tt.args.obj, tt.args.fieldName, tt.args.tagKey)
+			if !tt.wantErr(t, err, fmt.Sprintf("StructFieldTagValue(%v, %v, %v)", tt.args.obj, tt.args.fieldName, tt.args.tagKey)) {
 				return
 			}
-			assert.Equalf(t, tt.want, got, "GetStructFieldTag(%v, %v, %v)", tt.args.obj, tt.args.fieldName, tt.args.tagKey)
+			assert.Equalf(t, tt.want, got, "StructFieldTagValue(%v, %v, %v)", tt.args.obj, tt.args.fieldName, tt.args.tagKey)
 		})
 	}
 }
@@ -309,27 +315,27 @@ func TestGetEmbedStructFieldXMethods(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetEmbedStructFieldKind(tt.args.obj, tt.args.name)
-			if !tt.wantErr(t, err, fmt.Sprintf("GetEmbedStructFieldKind(%v, %v)", tt.args.obj, tt.args.name)) {
+			got, err := EmbedStructFieldKind(tt.args.obj, tt.args.name)
+			if !tt.wantErr(t, err, fmt.Sprintf("EmbedStructFieldKind(%v, %v)", tt.args.obj, tt.args.name)) {
 				return
 			}
-			assert.Equalf(t, reflect.TypeOf(tt.want).Kind(), got, "GetEmbedStructFieldKind(%v, %v)", tt.args.obj, tt.args.name)
+			assert.Equalf(t, reflect.TypeOf(tt.want).Kind(), got, "EmbedStructFieldKind(%v, %v)", tt.args.obj, tt.args.name)
 		})
 
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetEmbedStructFieldType(tt.args.obj, tt.args.name)
-			if !tt.wantErr(t, err, fmt.Sprintf("GetEmbedStructFieldType(%v, %v)", tt.args.obj, tt.args.name)) {
+			got, err := EmbedStructFieldType(tt.args.obj, tt.args.name)
+			if !tt.wantErr(t, err, fmt.Sprintf("EmbedStructFieldType(%v, %v)", tt.args.obj, tt.args.name)) {
 				return
 			}
-			assert.Equalf(t, reflect.TypeOf(tt.want), got, "GetEmbedStructFieldType(%v, %v)", tt.args.obj, tt.args.name)
+			assert.Equalf(t, reflect.TypeOf(tt.want), got, "EmbedStructFieldType(%v, %v)", tt.args.obj, tt.args.name)
 		})
 
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GetEmbedStructFieldTypeStr(tt.args.obj, tt.args.name)
-			if !tt.wantErr(t, err, fmt.Sprintf("GetEmbedStructFieldTypeStr(%v, %v)", tt.args.obj, tt.args.name)) {
+			got, err := EmbedStructFieldTypeStr(tt.args.obj, tt.args.name)
+			if !tt.wantErr(t, err, fmt.Sprintf("EmbedStructFieldTypeStr(%v, %v)", tt.args.obj, tt.args.name)) {
 				return
 			}
-			assert.Equalf(t, reflect.TypeOf(tt.want).String(), got, "GetEmbedStructFieldTypeStr(%v, %v)", tt.args.obj, tt.args.name)
+			assert.Equalf(t, reflect.TypeOf(tt.want).String(), got, "EmbedStructFieldTypeStr(%v, %v)", tt.args.obj, tt.args.name)
 
 		})
 	}

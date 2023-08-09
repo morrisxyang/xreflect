@@ -134,7 +134,7 @@ func TestGetType(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result := GetType(tc.obj)
+			result := Type(tc.obj)
 			if result != tc.expected {
 				t.Errorf("Expected type %v, got %v", tc.expected, result)
 			}
@@ -183,7 +183,7 @@ func TestGetTypePenetrateElem(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result := GetTypePenetrateElem(tc.obj)
+			result := TypePenetrateElem(tc.obj)
 			if result != tc.expected {
 				t.Errorf("Expected type %v, got %v", tc.expected, result)
 			}
@@ -223,7 +223,7 @@ func TestGetValue(t *testing.T) {
 	// Run test cases
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			actual := GetValue(tc.input)
+			actual := Value(tc.input)
 			if actual != tc.expected {
 				t.Errorf("Expected reflect value %v, but got %v", tc.expected, actual)
 			}
@@ -250,7 +250,7 @@ func TestGetValuePenetrateElem(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			actual := GetValuePenetrateElem(tc.input)
+			actual := ValuePenetrateElem(tc.input)
 			if !reflect.DeepEqual(actual, tc.expected) {
 				t.Errorf("Expected %v, but got %v", tc.expected, actual)
 			}

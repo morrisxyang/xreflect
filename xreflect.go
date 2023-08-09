@@ -34,8 +34,8 @@ func NewInstance(value interface{}) interface{} {
 	return entity.Interface()
 }
 
-// GetType ...
-func GetType(obj interface{}) reflect.Type {
+// Type ...
+func Type(obj interface{}) reflect.Type {
 	if obj == nil {
 		return nil
 	}
@@ -51,20 +51,20 @@ func GetType(obj interface{}) reflect.Type {
 	return reflect.TypeOf(obj)
 }
 
-// GetTypePenetrateElem ...
-func GetTypePenetrateElem(obj interface{}) reflect.Type {
+// TypePenetrateElem ...
+func TypePenetrateElem(obj interface{}) reflect.Type {
 	if obj == nil {
 		return nil
 	}
-	ty := GetType(obj)
+	ty := Type(obj)
 	for ty.Kind() == reflect.Ptr {
 		ty = ty.Elem()
 	}
 	return ty
 }
 
-// GetValue ...
-func GetValue(obj interface{}) reflect.Value {
+// Value ...
+func Value(obj interface{}) reflect.Value {
 	var empty reflect.Value
 	if obj == nil {
 		return empty
@@ -78,13 +78,13 @@ func GetValue(obj interface{}) reflect.Value {
 	return reflect.ValueOf(obj)
 }
 
-// GetValuePenetrateElem ...
-func GetValuePenetrateElem(obj interface{}) reflect.Value {
+// ValuePenetrateElem ...
+func ValuePenetrateElem(obj interface{}) reflect.Value {
 	var empty reflect.Value
 	if obj == nil {
 		return empty
 	}
-	ty := GetValue(obj)
+	ty := Value(obj)
 	for ty.Kind() == reflect.Ptr {
 		ty = ty.Elem()
 	}

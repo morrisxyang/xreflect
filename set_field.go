@@ -20,7 +20,7 @@ func SetField(obj interface{}, fieldName string, fieldValue interface{}) error {
 		return errors.New("field name must not be empty")
 	}
 
-	target := GetValue(obj)
+	target := Value(obj)
 	if !isSupportedKind(target.Kind(), []reflect.Kind{reflect.Struct}) {
 		return errors.New("obj must be struct pointer")
 	}
@@ -50,7 +50,7 @@ func SetPrivateField(obj interface{}, fieldName string, fieldValue interface{}) 
 		return errors.New("field name must not be empty")
 	}
 
-	target := GetValue(obj)
+	target := Value(obj)
 	if !isSupportedKind(target.Kind(), []reflect.Kind{reflect.Struct}) {
 		return errors.New("obj must be struct pointer")
 	}
@@ -82,7 +82,7 @@ func SetEmbedField(obj interface{}, fieldPath string, fieldValue interface{}) er
 		return errors.New("field path must not be empty")
 	}
 
-	target := GetValue(obj)
+	target := Value(obj)
 	fieldNames := strings.Split(fieldPath, ".")
 	for _, fieldName := range fieldNames {
 		if fieldName == "" {

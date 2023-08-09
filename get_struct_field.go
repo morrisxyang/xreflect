@@ -7,14 +7,14 @@ import (
 	"strings"
 )
 
-// GetStructField 获取结构体的字段
-func GetStructField(obj interface{}, fieldName string) (reflect.StructField, error) {
+// StructField 获取结构体的字段
+func StructField(obj interface{}, fieldName string) (reflect.StructField, error) {
 	var empty reflect.StructField
 	if obj == nil {
 		return empty, errors.New("obj must not be nil")
 	}
 
-	ty := GetType(obj)
+	ty := Type(obj)
 	if !isSupportedKind(ty.Kind(), []reflect.Kind{reflect.Struct}) {
 		return empty, errors.New("obj must be struct")
 	}
@@ -26,9 +26,9 @@ func GetStructField(obj interface{}, fieldName string) (reflect.StructField, err
 	return field, nil
 }
 
-// GetStructFieldKind ...
-func GetStructFieldKind(obj interface{}, fieldName string) (reflect.Kind, error) {
-	field, err := GetStructField(obj, fieldName)
+// StructFieldKind ...
+func StructFieldKind(obj interface{}, fieldName string) (reflect.Kind, error) {
+	field, err := StructField(obj, fieldName)
 	if err != nil {
 		return reflect.Invalid, err
 	}
@@ -36,9 +36,9 @@ func GetStructFieldKind(obj interface{}, fieldName string) (reflect.Kind, error)
 	return field.Type.Kind(), nil
 }
 
-// GetStructFieldType ...
-func GetStructFieldType(obj interface{}, fieldName string) (reflect.Type, error) {
-	field, err := GetStructField(obj, fieldName)
+// StructFieldType ...
+func StructFieldType(obj interface{}, fieldName string) (reflect.Type, error) {
+	field, err := StructField(obj, fieldName)
 	if err != nil {
 		return nil, err
 	}
@@ -46,9 +46,9 @@ func GetStructFieldType(obj interface{}, fieldName string) (reflect.Type, error)
 	return field.Type, nil
 }
 
-// GetStructFieldTypeStr ...
-func GetStructFieldTypeStr(obj interface{}, fieldName string) (string, error) {
-	field, err := GetStructField(obj, fieldName)
+// StructFieldTypeStr ...
+func StructFieldTypeStr(obj interface{}, fieldName string) (string, error) {
+	field, err := StructField(obj, fieldName)
 	if err != nil {
 		return "", err
 	}
@@ -56,10 +56,10 @@ func GetStructFieldTypeStr(obj interface{}, fieldName string) (string, error) {
 	return field.Type.String(), nil
 }
 
-// HasField checks if the provided `obj` struct has field named `name`.
+// HasStructField checks if the provided `obj` struct has field named `name`.
 // The `obj` can either be a structure or pointer to structure.
-func HasField(obj interface{}, fieldName string) (bool, error) {
-	_, err := GetStructField(obj, fieldName)
+func HasStructField(obj interface{}, fieldName string) (bool, error) {
+	_, err := StructField(obj, fieldName)
 	if err != nil {
 		return false, err
 	}
@@ -67,24 +67,35 @@ func HasField(obj interface{}, fieldName string) (bool, error) {
 	return true, nil
 }
 
-// GetStructFieldTag returns the provided obj field tag value.
+// StructFieldTag returns the provided obj field tag.
 // The `obj` parameter can either be a structure or pointer to structure.
-func GetStructFieldTag(obj interface{}, fieldName, tagKey string) (string, error) {
-	structField, err := GetStructField(obj, fieldName)
+func StructFieldTag(obj interface{}, fieldName string) (reflect.StructTag, error) {
+	structField, err := StructField(obj, fieldName)
 	if err != nil {
 		return "", err
 	}
 
-	return structField.Tag.Get(tagKey), nil
+	return structField.Tag, nil
 }
 
-// GetStructFields 获取结构体的字段
-func GetStructFields(obj interface{}) ([]reflect.StructField, error) {
+// StructFieldTagValue returns the provided obj field tag value.
+// The `obj` parameter can either be a structure or pointer to structure.
+func StructFieldTagValue(obj interface{}, fieldName, tagKey string) (string, error) {
+	tag, err := StructFieldTag(obj, fieldName)
+	if err != nil {
+		return "", err
+	}
+
+	return tag.Get(tagKey), nil
+}
+
+// StructFields 获取结构体的字段
+func StructFields(obj interface{}) ([]reflect.StructField, error) {
 	if obj == nil {
 		return nil, errors.New("obj must not be nil")
 	}
 
-	ty := GetType(obj)
+	ty := Type(obj)
 	if !isSupportedKind(ty.Kind(), []reflect.Kind{reflect.Struct}) {
 		return nil, errors.New("obj must be struct")
 	}
@@ -102,7 +113,7 @@ func SelectStructFields(obj interface{}, f func(int, reflect.StructField) bool) 
 		return nil, errors.New("obj must not be nil")
 	}
 
-	ty := GetType(obj)
+	ty := Type(obj)
 	if !isSupportedKind(ty.Kind(), []reflect.Kind{reflect.Struct}) {
 		return nil, errors.New("obj must be struct")
 	}
@@ -122,7 +133,7 @@ func RangeStructFields(obj interface{}, f func(int, reflect.StructField) bool) e
 		return errors.New("obj must not be nil")
 	}
 
-	ty := GetType(obj)
+	ty := Type(obj)
 	if !isSupportedKind(ty.Kind(), []reflect.Kind{reflect.Struct}) {
 		return errors.New("obj must be struct")
 	}
@@ -135,20 +146,20 @@ func RangeStructFields(obj interface{}, f func(int, reflect.StructField) bool) e
 	return nil
 }
 
-// GetAnonymousStructFields 获取匿名结构体字段
-func GetAnonymousStructFields(obj interface{}) ([]reflect.StructField, error) {
+// AnonymousStructFields 获取匿名结构体字段
+func AnonymousStructFields(obj interface{}) ([]reflect.StructField, error) {
 	return SelectStructFields(obj, func(i int, field reflect.StructField) bool {
 		return field.Anonymous
 	})
 }
 
-// GetEmbedStructField ...
-func GetEmbedStructField(obj interface{}, fieldPath string) (reflect.StructField, error) {
+// EmbedStructField ...
+func EmbedStructField(obj interface{}, fieldPath string) (reflect.StructField, error) {
 	var empty reflect.StructField
 	if obj == nil {
 		return empty, errors.New("obj must not be nil")
 	}
-	target := GetType(obj)
+	target := Type(obj)
 	if !isSupportedKind(target.Kind(), []reflect.Kind{reflect.Struct}) {
 		return empty, errors.New("obj must be struct")
 	}
@@ -180,9 +191,9 @@ func GetEmbedStructField(obj interface{}, fieldPath string) (reflect.StructField
 	return empty, nil
 }
 
-// GetEmbedStructFieldKind ...
-func GetEmbedStructFieldKind(obj interface{}, fieldPath string) (reflect.Kind, error) {
-	field, err := GetEmbedStructField(obj, fieldPath)
+// EmbedStructFieldKind ...
+func EmbedStructFieldKind(obj interface{}, fieldPath string) (reflect.Kind, error) {
+	field, err := EmbedStructField(obj, fieldPath)
 	if err != nil {
 		return reflect.Invalid, err
 	}
@@ -190,9 +201,9 @@ func GetEmbedStructFieldKind(obj interface{}, fieldPath string) (reflect.Kind, e
 	return field.Type.Kind(), nil
 }
 
-// GetEmbedStructFieldType ...
-func GetEmbedStructFieldType(obj interface{}, fieldPath string) (reflect.Type, error) {
-	field, err := GetEmbedStructField(obj, fieldPath)
+// EmbedStructFieldType ...
+func EmbedStructFieldType(obj interface{}, fieldPath string) (reflect.Type, error) {
+	field, err := EmbedStructField(obj, fieldPath)
 	if err != nil {
 		return nil, err
 	}
@@ -200,9 +211,9 @@ func GetEmbedStructFieldType(obj interface{}, fieldPath string) (reflect.Type, e
 	return field.Type, nil
 }
 
-// GetEmbedStructFieldTypeStr ...
-func GetEmbedStructFieldTypeStr(obj interface{}, fieldPath string) (string, error) {
-	field, err := GetEmbedStructField(obj, fieldPath)
+// EmbedStructFieldTypeStr ...
+func EmbedStructFieldTypeStr(obj interface{}, fieldPath string) (string, error) {
+	field, err := EmbedStructField(obj, fieldPath)
 	if err != nil {
 		return "", err
 	}
