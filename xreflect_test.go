@@ -7,39 +7,48 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type Person struct {
-	Name      string `json:"name"`
-	Age       int    `json:"age"`
-	PtrPerson *Person
+type (
+	Heart  interface{}
+	Person struct {
+		Name      string `json:"name"`
+		Age       int    `json:"age"`
+		PtrPerson *Person
 
-	// private field
-	phone string `json:"phone"`
+		// private field
+		phone string `json:"phone"`
 
-	// anonymous fields
-	int
-	string
-	*Person
-}
+		// anonymous fields
+		string
+		int
+		*Person
+		Country
+		Heart // interface
+		inner
+	}
+	inner struct {
+		innerString string
+	}
 
-type Country struct {
-	ID   int
-	Name string
+	Country struct {
+		ID   int
+		Name string
 
-	City    City
-	PtrCity *City
-}
+		City    City
+		PtrCity *City
+	}
 
-type City struct {
-	PtrTown *Town
-	Town    Town
-}
+	City struct {
+		PtrTown *Town
+		Town    Town
+	}
 
-type Town struct {
-	Int  int
-	Str  string
-	Bool bool
-	Strs []string
-}
+	Town struct {
+		Int  int
+		Str  string
+		Bool bool
+		Strs []string
+	}
+)
 
 func newCountry() Country {
 	town := Town{

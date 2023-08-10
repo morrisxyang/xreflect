@@ -67,7 +67,7 @@ func TestGetStructFieldXMethods(t *testing.T) {
 
 	sfs, err := StructFields(p)
 	assert.Equal(t, nil, err)
-	assert.Equal(t, 7, len(sfs))
+	assert.Equal(t, 10, len(sfs))
 
 	sfs, err = SelectStructFields(nil, nil)
 	assert.EqualError(t, err, "obj must not be nil")
@@ -79,11 +79,11 @@ func TestGetStructFieldXMethods(t *testing.T) {
 		return true
 	})
 	assert.Equal(t, nil, err)
-	assert.Equal(t, 7, len(sfs))
+	assert.Equal(t, 10, len(sfs))
 
 	sfs, err = AnonymousStructFields(p)
 	assert.Equal(t, nil, err)
-	assert.Equal(t, 3, len(sfs))
+	assert.Equal(t, 6, len(sfs))
 
 	err = RangeStructFields(nil, nil)
 	assert.EqualError(t, err, "obj must not be nil")
@@ -94,6 +94,9 @@ func TestGetStructFieldXMethods(t *testing.T) {
 	err = RangeStructFields(p, func(i int, field reflect.StructField) bool {
 		return true
 	})
+	assert.Equal(t, nil, err)
+
+	sfs, err = StructFieldsFlatten(p)
 	assert.Equal(t, nil, err)
 
 }
@@ -338,5 +341,15 @@ func TestGetEmbedStructFieldXMethods(t *testing.T) {
 			assert.Equalf(t, reflect.TypeOf(tt.want).String(), got, "EmbedStructFieldTypeStr(%v, %v)", tt.args.obj, tt.args.name)
 
 		})
+	}
+}
+
+func TestStructFieldsFlatten(t *testing.T) {
+	p := &Person{}
+	sfs, err := StructFieldsFlatten(p)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 13, len(sfs))
+	for _, sf := range sfs {
+		fmt.Println(sf.Name)
 	}
 }

@@ -91,6 +91,15 @@ func StructFieldTagValue(obj interface{}, fieldName, tagKey string) (string, err
 
 // StructFields 获取结构体的字段
 func StructFields(obj interface{}) ([]reflect.StructField, error) {
+	return structFields(obj, false)
+}
+
+// StructFieldsFlatten ...
+func StructFieldsFlatten(obj interface{}) ([]reflect.StructField, error) {
+	return structFields(obj, true)
+}
+
+func structFields(obj interface{}, flatten bool) ([]reflect.StructField, error) {
 	if obj == nil {
 		return nil, errors.New("obj must not be nil")
 	}
@@ -102,7 +111,21 @@ func StructFields(obj interface{}) ([]reflect.StructField, error) {
 
 	var res []reflect.StructField
 	for i := 0; i < ty.NumField(); i++ {
-		res = append(res, ty.Field(i))
+		field := ty.Field(i)
+		if !flatten {
+			res = append(res, field)
+			continue
+		}
+
+		if field.Anonymous && field.Type.Kind() == reflect.Struct {
+			subFields, err := structFields(field.Type, flatten)
+			if err != nil {
+				return nil, fmt.Errorf("cannot get fields in %s: %w", field.Name, err)
+			}
+			res = append(res, subFields...)
+		} else {
+			res = append(res, field)
+		}
 	}
 	return res, nil
 }
