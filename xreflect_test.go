@@ -1,6 +1,7 @@
 package xreflect
 
 import (
+	"errors"
 	"io"
 	"reflect"
 	"testing"
@@ -308,6 +309,44 @@ func TestGetPkgPath(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			assert.Equalf(t, tt.want, GetPkgPath(tt.obj), "GetPkgPath(%v)", tt.obj)
+		})
+	}
+}
+
+func TestImplements(t *testing.T) {
+	type error interface {
+		Error() string
+	}
+
+	type args struct {
+		obj interface{}
+		in  interface{}
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "Nil",
+			args: args{
+				obj: nil,
+				in:  nil,
+			},
+			want: false,
+		},
+		{
+			name: "error",
+			args: args{
+				obj: errors.New(""),
+				in:  (*error)(nil),
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, Implements(tt.args.obj, tt.args.in), "Implements(%v, %v)", tt.args.obj, tt.args.in)
 		})
 	}
 }
