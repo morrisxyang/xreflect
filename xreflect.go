@@ -78,6 +78,15 @@ func Value(obj interface{}) reflect.Value {
 	return reflect.ValueOf(obj)
 }
 
+// GetPkgPath return  the package patch
+func GetPkgPath(obj interface{}) string {
+	ty := Type(obj)
+	if ty == nil {
+		return ""
+	}
+	return ty.PkgPath()
+}
+
 // ValuePenetrateElem ...
 func ValuePenetrateElem(obj interface{}) reflect.Value {
 	var empty reflect.Value

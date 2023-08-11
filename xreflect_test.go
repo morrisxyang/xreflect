@@ -1,6 +1,7 @@
 package xreflect
 
 import (
+	"io"
 	"reflect"
 	"testing"
 
@@ -263,6 +264,50 @@ func TestGetValuePenetrateElem(t *testing.T) {
 			if !reflect.DeepEqual(actual, tc.expected) {
 				t.Errorf("Expected %v, but got %v", tc.expected, actual)
 			}
+		})
+	}
+}
+
+func F() {
+
+}
+
+func TestGetPkgPath(t *testing.T) {
+
+	tests := []struct {
+		name string
+		obj  interface{}
+		want string
+	}{
+		{
+			name: "struct",
+			obj:  &Person{},
+			want: "github.com/morrisxyang/xreflect",
+		},
+		{
+			name: "[]string{}",
+			obj:  []string{},
+			want: "",
+		},
+		{
+			name: "Func",
+			obj:  F,
+			want: "",
+		},
+		{
+			name: "assert.NoError",
+			obj:  assert.NoError,
+			want: "",
+		},
+		{
+			name: "io.EOF",
+			obj:  io.EOF,
+			want: "errors",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equalf(t, tt.want, GetPkgPath(tt.obj), "GetPkgPath(%v)", tt.obj)
 		})
 	}
 }
