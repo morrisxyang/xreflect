@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetFieldXMethods(t *testing.T) {
+func TestFieldXMethods(t *testing.T) {
 	type args struct {
 		obj  interface{}
 		name string
@@ -99,7 +99,7 @@ func TestGetFieldXMethods(t *testing.T) {
 	}
 }
 
-func TestGetEmbedFieldXMethods(t *testing.T) {
+func TestEmbedFieldXMethods(t *testing.T) {
 	to := Town{
 		Int:  1,
 		Str:  "Town",
