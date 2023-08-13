@@ -83,13 +83,22 @@ func TestSetEmbedField(t *testing.T) {
 	assert.EqualError(t, err, "obj must not be nil")
 
 	err = SetEmbedField("123", "ID", 1)
-	assert.EqualError(t, err, "obj must be pointer")
+	assert.EqualError(t, err, "obj must be struct pointer")
 
 	err = SetEmbedField(&country, "", 1)
 	assert.EqualError(t, err, "field path must not be empty")
 
+	err = SetEmbedField(&country, "ID.Name", 1)
+	assert.EqualError(t, err, "field: ID is not struct")
+
 	err = SetEmbedField(&country, ".Town.Int", 1)
 	assert.EqualError(t, err, "field path:.Town.Int is invalid")
+
+	err = SetEmbedField(&country, "City.ID.Name", 1)
+	assert.EqualError(t, err, "field: ID is not struct")
+
+	err = SetEmbedField(&country, "City.ID1", 1)
+	assert.EqualError(t, err, "field: ID1 is invalid")
 
 	err = SetEmbedField(&country, "ID", 1)
 	assert.Equal(t, err, nil)

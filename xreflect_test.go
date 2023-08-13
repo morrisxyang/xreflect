@@ -40,6 +40,7 @@ type (
 	}
 
 	City struct {
+		ID      int
 		PtrTown *Town
 		Town    Town
 	}

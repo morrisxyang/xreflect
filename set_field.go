@@ -13,13 +13,13 @@ func SetField(obj interface{}, fieldName string, fieldValue interface{}) error {
 	if obj == nil {
 		return errors.New("obj must not be nil")
 	}
-	if !isSupportedType(obj, []reflect.Kind{reflect.Pointer}) {
-		return errors.New("obj must be struct pointer")
-	}
 	if fieldName == "" {
 		return errors.New("field name must not be empty")
 	}
 
+	if !isSupportedType(obj, []reflect.Kind{reflect.Pointer}) {
+		return errors.New("obj must be struct pointer")
+	}
 	target := Value(obj)
 	if !isSupportedKind(target.Kind(), []reflect.Kind{reflect.Struct}) {
 		return errors.New("obj must be struct pointer")
@@ -43,13 +43,13 @@ func SetPrivateField(obj interface{}, fieldName string, fieldValue interface{}) 
 	if obj == nil {
 		return errors.New("obj must not be nil")
 	}
-	if !isSupportedType(obj, []reflect.Kind{reflect.Pointer}) {
-		return errors.New("obj must be struct pointer")
-	}
 	if fieldName == "" {
 		return errors.New("field name must not be empty")
 	}
 
+	if !isSupportedType(obj, []reflect.Kind{reflect.Pointer}) {
+		return errors.New("obj must be struct pointer")
+	}
 	target := Value(obj)
 	if !isSupportedKind(target.Kind(), []reflect.Kind{reflect.Struct}) {
 		return errors.New("obj must be struct pointer")
@@ -59,7 +59,7 @@ func SetPrivateField(obj interface{}, fieldName string, fieldValue interface{}) 
 	if !target.IsValid() {
 		return fmt.Errorf("field: %s is invalid", fieldName)
 	}
-	// private field
+	// deal private field
 	target = reflect.NewAt(target.Type(), unsafe.Pointer(target.UnsafeAddr())).Elem()
 
 	actualValue := reflect.ValueOf(fieldValue)
@@ -75,33 +75,40 @@ func SetEmbedField(obj interface{}, fieldPath string, fieldValue interface{}) er
 	if obj == nil {
 		return errors.New("obj must not be nil")
 	}
-	if !isSupportedType(obj, []reflect.Kind{reflect.Pointer}) {
-		return errors.New("obj must be pointer")
-	}
 	if fieldPath == "" {
 		return errors.New("field path must not be empty")
 	}
 
+	if !isSupportedType(obj, []reflect.Kind{reflect.Pointer}) {
+		return errors.New("obj must be struct pointer")
+	}
 	target := Value(obj)
+	if !isSupportedKind(target.Kind(), []reflect.Kind{reflect.Struct}) {
+		return errors.New("obj must be struct pointer")
+	}
+
 	fieldNames := strings.Split(fieldPath, ".")
-	for _, fieldName := range fieldNames {
+	for i, fieldName := range fieldNames {
 		if fieldName == "" {
 			return fmt.Errorf("field path:%s is invalid", fieldPath)
 		}
+		target = target.FieldByName(fieldName)
+		if err := checkField(target, fieldName); err != nil {
+			return err
+		}
+
+		if i == len(fieldNames)-1 {
+			break
+		}
 		if target.Kind() == reflect.Pointer {
-			// 	结构体指针为空则自行创建
+			//  结构体指针为空则自行创建
 			if target.IsNil() {
 				target.Set(reflect.New(target.Type().Elem()).Elem().Addr())
 			}
 			target = reflect.ValueOf(target.Interface()).Elem()
 		}
 		if !isSupportedKind(target.Kind(), []reflect.Kind{reflect.Struct}) {
-			return fmt.Errorf("field %s is not struct", target)
-		}
-
-		target = target.FieldByName(fieldName)
-		if err := checkField(target, fieldName); err != nil {
-			return err
+			return fmt.Errorf("field: %s is not struct", fieldName)
 		}
 	}
 
