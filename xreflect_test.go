@@ -12,9 +12,9 @@ import (
 type (
 	Heart  interface{}
 	Person struct {
-		Name      string `json:"name"`
-		Age       int    `json:"age"`
-		PtrPerson *Person
+		Name      string  `json:"name"`
+		Age       int     `json:"age"`
+		PtrPerson *Person `json:"ptr_person,omitempty"`
 
 		// private field
 		phone string `json:"phone"`

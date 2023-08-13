@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetStructFieldXMethods(t *testing.T) {
+func TestStructFieldXMethods(t *testing.T) {
 	_, err := StructField(nil, "Name")
 	assert.EqualError(t, err, "obj must not be nil")
 
@@ -58,50 +58,9 @@ func TestGetStructFieldXMethods(t *testing.T) {
 	b, err := HasStructField(p, "Age")
 	assert.Equal(t, nil, err)
 	assert.Equal(t, true, b)
-
-	_, err = StructFields(nil)
-	assert.EqualError(t, err, "obj must not be nil")
-
-	_, err = StructFields("123")
-	assert.EqualError(t, err, "obj must be struct")
-
-	sfs, err := StructFields(p)
-	assert.Equal(t, nil, err)
-	assert.Equal(t, 10, len(sfs))
-
-	sfs, err = SelectStructFields(nil, nil)
-	assert.EqualError(t, err, "obj must not be nil")
-
-	sfs, err = SelectStructFields("123", nil)
-	assert.EqualError(t, err, "obj must be struct")
-
-	sfs, err = SelectStructFields(p, func(i int, field reflect.StructField) bool {
-		return true
-	})
-	assert.Equal(t, nil, err)
-	assert.Equal(t, 10, len(sfs))
-
-	sfs, err = AnonymousStructFields(p)
-	assert.Equal(t, nil, err)
-	assert.Equal(t, 6, len(sfs))
-
-	err = RangeStructFields(nil, nil)
-	assert.EqualError(t, err, "obj must not be nil")
-
-	err = RangeStructFields("123", nil)
-	assert.EqualError(t, err, "obj must be struct")
-
-	err = RangeStructFields(p, func(i int, field reflect.StructField) bool {
-		return true
-	})
-	assert.Equal(t, nil, err)
-
-	sfs, err = StructFieldsFlatten(p)
-	assert.Equal(t, nil, err)
-
 }
 
-func TestGetStructFieldTag(t *testing.T) {
+func TestStructFieldTag(t *testing.T) {
 	type args struct {
 		obj       interface{}
 		fieldName string
@@ -121,6 +80,16 @@ func TestGetStructFieldTag(t *testing.T) {
 				tagKey:    "json",
 			},
 			want:    "name",
+			wantErr: assert.NoError,
+		},
+		{
+			name: "Struct tag has options",
+			args: args{
+				obj:       &Person{},
+				fieldName: "PtrPerson",
+				tagKey:    "json",
+			},
+			want:    "ptr_person,omitempty",
 			wantErr: assert.NoError,
 		},
 		{
@@ -177,7 +146,7 @@ func TestGetStructFieldTag(t *testing.T) {
 	}
 }
 
-func TestGetEmbedStructFieldXMethods(t *testing.T) {
+func TestEmbedStructFieldXMethods(t *testing.T) {
 	to := Town{
 		Int:  1,
 		Str:  "Town",
@@ -344,12 +313,49 @@ func TestGetEmbedStructFieldXMethods(t *testing.T) {
 	}
 }
 
-func TestStructFieldsFlatten(t *testing.T) {
+func TestStructFieldsXMethod(t *testing.T) {
 	p := &Person{}
-	sfs, err := StructFieldsFlatten(p)
+	_, err := StructFields(nil)
+	assert.EqualError(t, err, "obj must not be nil")
+
+	_, err = StructFields("123")
+	assert.EqualError(t, err, "obj must be struct")
+
+	sfs, err := StructFields(p)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 10, len(sfs))
+
+	sfs, err = StructFieldsFlatten(p)
 	assert.Equal(t, nil, err)
 	assert.Equal(t, 13, len(sfs))
 	for _, sf := range sfs {
 		fmt.Println(sf.Name)
 	}
+
+	sfs, err = SelectStructFields(nil, nil)
+	assert.EqualError(t, err, "obj must not be nil")
+
+	sfs, err = SelectStructFields("123", nil)
+	assert.EqualError(t, err, "obj must be struct")
+
+	sfs, err = SelectStructFields(p, func(i int, field reflect.StructField) bool {
+		return true
+	})
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 10, len(sfs))
+
+	sfs, err = AnonymousStructFields(p)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 6, len(sfs))
+
+	err = RangeStructFields(nil, nil)
+	assert.EqualError(t, err, "obj must not be nil")
+
+	err = RangeStructFields("123", nil)
+	assert.EqualError(t, err, "obj must be struct")
+
+	err = RangeStructFields(p, func(i int, field reflect.StructField) bool {
+		return true
+	})
+	assert.Equal(t, nil, err)
 }
