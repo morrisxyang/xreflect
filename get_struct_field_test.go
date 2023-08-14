@@ -234,7 +234,7 @@ func TestEmbedStructFieldXMethods(t *testing.T) {
 				name: ".Town.Int",
 			},
 			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
-				assert.EqualError(t, err, "field path:.Town.Int is invalid")
+				assert.EqualError(t, err, "field path: .Town.Int is invalid")
 				return false
 			},
 		},
@@ -281,6 +281,15 @@ func TestEmbedStructFieldXMethods(t *testing.T) {
 				name: "City.Town.Bool",
 			},
 			want:    true,
+			wantErr: assert.NoError,
+		},
+		{
+			name: "PtrPerson.PtrPerson.PtrPerson.PtrPerson.Name",
+			args: args{
+				obj:  &Person{},
+				name: "PtrPerson.PtrPerson.PtrPerson.PtrPerson.Name",
+			},
+			want:    "",
 			wantErr: assert.NoError,
 		},
 	}

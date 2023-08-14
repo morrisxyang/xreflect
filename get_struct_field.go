@@ -95,26 +95,20 @@ func EmbedStructField(obj interface{}, fieldPath string) (reflect.StructField, e
 	if obj == nil {
 		return empty, errors.New("obj must not be nil")
 	}
+	if fieldPath == "" {
+		return empty, errors.New("field path must not be empty")
+	}
+
 	target := Type(obj)
 	if !isSupportedKind(target.Kind(), []reflect.Kind{reflect.Struct}) {
 		return empty, errors.New("obj must be struct")
-	}
-	if fieldPath == "" {
-		return empty, errors.New("field path must not be empty")
 	}
 
 	fieldNames := strings.Split(fieldPath, ".")
 	for i, fieldName := range fieldNames {
 		if fieldName == "" {
-			return empty, fmt.Errorf("field path:%s is invalid", fieldPath)
+			return empty, fmt.Errorf("field path: %s is invalid", fieldPath)
 		}
-		if target.Kind() == reflect.Pointer {
-			target = target.Elem()
-		}
-		if !isSupportedKind(target.Kind(), []reflect.Kind{reflect.Struct}) {
-			return empty, fmt.Errorf("field %s is not struct", target)
-		}
-
 		structField, ok := target.FieldByName(fieldName)
 		if !ok {
 			return empty, fmt.Errorf("no such field: %s", fieldName)
@@ -122,6 +116,13 @@ func EmbedStructField(obj interface{}, fieldPath string) (reflect.StructField, e
 		target = structField.Type
 		if i == len(fieldNames)-1 {
 			return structField, nil
+		}
+
+		if target.Kind() == reflect.Pointer {
+			target = target.Elem()
+		}
+		if !isSupportedKind(target.Kind(), []reflect.Kind{reflect.Struct}) {
+			return empty, fmt.Errorf("field: %s is not struct", fieldName)
 		}
 	}
 	return empty, nil
