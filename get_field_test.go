@@ -128,15 +128,6 @@ func TestEmbedFieldXMethods(t *testing.T) {
 		wantErr assert.ErrorAssertionFunc
 	}{
 		{
-			name: "Get",
-			args: args{
-				obj:  ct,
-				name: "Name",
-			},
-			want:    "Country",
-			wantErr: assert.NoError,
-		},
-		{
 			name: "No such field",
 			args: args{
 				obj:  ct,
@@ -147,6 +138,18 @@ func TestEmbedFieldXMethods(t *testing.T) {
 				return false
 			},
 		},
+		{
+			name: "Nil field",
+			args: args{
+				obj:  &Person{},
+				name: "PtrPerson.Name",
+			},
+			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+				assert.EqualError(t, err, "field: PtrPerson is nil")
+				return false
+			},
+		},
+
 		{
 			name: "Nil",
 			args: args{
@@ -168,6 +171,26 @@ func TestEmbedFieldXMethods(t *testing.T) {
 				assert.EqualError(t, err, "obj must be struct")
 				return false
 			},
+		},
+		{
+			name: "Not a struct",
+			args: args{
+				obj:  ct,
+				name: "ID.Name",
+			},
+			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+				assert.EqualError(t, err, "field: ID is not struct")
+				return false
+			},
+		},
+		{
+			name: "Get",
+			args: args{
+				obj:  ct,
+				name: "Name",
+			},
+			want:    "Country",
+			wantErr: assert.NoError,
 		},
 		{
 			name: "City.Town.Int",

@@ -14,12 +14,12 @@ func Field(obj interface{}, fieldName string) (reflect.Value, error) {
 		return empty, errors.New("obj must not be nil")
 	}
 
-	objValue := Value(obj)
-	if !isSupportedKind(objValue.Kind(), []reflect.Kind{reflect.Struct}) {
+	val := Value(obj)
+	if !isSupportedKind(val.Kind(), []reflect.Kind{reflect.Struct}) {
 		return empty, errors.New("obj must be struct")
 	}
 
-	field := objValue.FieldByName(fieldName)
+	field := val.FieldByName(fieldName)
 	if !field.IsValid() {
 		return empty, fmt.Errorf("no such field: %s", fieldName)
 	}
@@ -74,32 +74,38 @@ func EmbedField(obj interface{}, fieldPath string) (reflect.Value, error) {
 	if obj == nil {
 		return empty, errors.New("obj must not be nil")
 	}
-	target := Value(obj)
-	if !isSupportedKind(target.Kind(), []reflect.Kind{reflect.Struct}) {
-		return empty, errors.New("obj must be struct")
-	}
 	if fieldPath == "" {
 		return empty, errors.New("field path must not be empty")
 	}
 
+	target := Value(obj)
+	if !isSupportedKind(target.Kind(), []reflect.Kind{reflect.Struct}) {
+		return empty, errors.New("obj must be struct")
+	}
+
 	fieldNames := strings.Split(fieldPath, ".")
-	for _, fieldName := range fieldNames {
+	for i, fieldName := range fieldNames {
 		if fieldName == "" {
 			return empty, fmt.Errorf("field path:%s is invalid", fieldPath)
 		}
-		if target.Kind() == reflect.Pointer {
-			target = reflect.ValueOf(target.Interface()).Elem()
-		}
-		if !isSupportedKind(target.Kind(), []reflect.Kind{reflect.Struct}) {
-			return empty, fmt.Errorf("field %s is not struct", target)
-		}
-
 		target = target.FieldByName(fieldName)
 		if !target.IsValid() {
 			return empty, fmt.Errorf("no such field: %s", fieldName)
 		}
-	}
 
+		if i == len(fieldNames)-1 {
+			break
+		}
+		if target.Kind() == reflect.Pointer {
+			if target.IsNil() {
+				return empty, fmt.Errorf("field: %s is nil", fieldName)
+			}
+			target = reflect.ValueOf(target.Interface()).Elem()
+		}
+		if !isSupportedKind(target.Kind(), []reflect.Kind{reflect.Struct}) {
+			return empty, fmt.Errorf("field: %s is not struct", fieldName)
+		}
+	}
 	return target, nil
 }
 
