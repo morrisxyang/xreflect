@@ -62,6 +62,7 @@ func newCountry() Country {
 	}
 
 	city := City{
+		ID:      0,
 		Town:    town,
 		PtrTown: &town,
 	}

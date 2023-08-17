@@ -296,3 +296,182 @@ func TestEmbedFieldXMethods(t *testing.T) {
 		})
 	}
 }
+
+func TestFieldsXMethods(t *testing.T) {
+	m, err := fields(nil, true, "", nil)
+	assert.EqualError(t, err, "obj must not be nil")
+
+	m, err = fields("nil", true, "", nil)
+	assert.EqualError(t, err, "obj must be struct")
+
+	m, err = selectFields(nil, nil, true, "", nil)
+	assert.EqualError(t, err, "obj must not be nil")
+
+	m, err = selectFields("nil", nil, true, "", nil)
+	assert.EqualError(t, err, "obj must be struct")
+
+	err = rangeFields(nil, nil, true, "")
+	assert.EqualError(t, err, "obj must not be nil")
+
+	err = rangeFields("nil", nil, true, "")
+	assert.EqualError(t, err, "obj must be struct")
+
+	type A struct {
+		*A
+		int `json:"int"`
+		string
+	}
+
+	a := &A{}
+	m, err = fields(a, true, "", nil)
+	assert.NoError(t, err)
+	for k, v := range m {
+		fmt.Printf("%s: %v\n", k, v)
+	}
+	assert.Equal(t, 3, len(m))
+
+	m, err = Fields(a)
+	assert.NoError(t, err)
+	assert.Equal(t, 3, len(m))
+
+	m, err = FieldsDeep(a)
+	assert.NoError(t, err)
+	assert.Equal(t, 3, len(m))
+
+	m, err = SelectFields(a, func(s string, field reflect.StructField, value reflect.Value) bool {
+		return field.Tag != ""
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(m))
+
+	m, err = SelectFields(a, func(s string, field reflect.StructField, value reflect.Value) bool {
+		return !field.IsExported()
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(m))
+
+	m, err = SelectFieldsDeep(a, func(s string, field reflect.StructField, value reflect.Value) bool {
+		return field.Tag != ""
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(m))
+
+	m, err = SelectFieldsDeep(a, func(s string, field reflect.StructField, value reflect.Value) bool {
+		return !field.IsExported()
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(m))
+
+	count := 0
+	err = RangeFields(a, func(s string, field reflect.StructField, value reflect.Value) bool {
+		count++
+		return true
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, 3, count)
+
+	count = 0
+	err = RangeFields(a, func(s string, field reflect.StructField, value reflect.Value) bool {
+		count++
+		return !field.IsExported()
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, 1, count)
+
+	count = 0
+	err = RangeFieldsDeep(a, func(s string, field reflect.StructField, value reflect.Value) bool {
+		count++
+		return true
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, 3, count)
+
+	count = 0
+	err = RangeFieldsDeep(a, func(s string, field reflect.StructField, value reflect.Value) bool {
+		count++
+		return !field.IsExported()
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, 1, count)
+
+	a = &A{
+		A: &A{
+			A:      nil,
+			int:    0,
+			string: "",
+		},
+		int:    0,
+		string: "",
+	}
+	m, err = fields(a, true, "", nil)
+	assert.NoError(t, err)
+	for k, v := range m {
+		fmt.Printf("%s: %v\n", k, v)
+	}
+	assert.Equal(t, 6, len(m))
+
+	m, err = FieldsDeep(a)
+	assert.NoError(t, err)
+	assert.Equal(t, 6, len(m))
+
+	m, err = Fields(a)
+	assert.NoError(t, err)
+	assert.Equal(t, 3, len(m))
+
+	m, err = SelectFields(a, func(s string, field reflect.StructField, value reflect.Value) bool {
+		return field.Tag != ""
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, 1, len(m))
+
+	m, err = SelectFields(a, func(s string, field reflect.StructField, value reflect.Value) bool {
+		return !field.IsExported()
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(m))
+
+	m, err = SelectFieldsDeep(a, func(s string, field reflect.StructField, value reflect.Value) bool {
+		return field.Tag != ""
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, 2, len(m))
+
+	m, err = SelectFieldsDeep(a, func(s string, field reflect.StructField, value reflect.Value) bool {
+		return !field.IsExported()
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, 4, len(m))
+
+	count = 0
+	err = RangeFields(a, func(s string, field reflect.StructField, value reflect.Value) bool {
+		count++
+		return true
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, 3, count)
+
+	count = 0
+	err = RangeFields(a, func(s string, field reflect.StructField, value reflect.Value) bool {
+		count++
+		return !field.IsExported()
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, 1, count)
+
+	count = 0
+	err = RangeFieldsDeep(a, func(s string, field reflect.StructField, value reflect.Value) bool {
+		count++
+		return true
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, 6, count)
+
+	count = 0
+	err = RangeFieldsDeep(a, func(s string, field reflect.StructField, value reflect.Value) bool {
+		count++
+		return !field.IsExported()
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, 1, count)
+
+}

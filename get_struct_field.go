@@ -14,12 +14,12 @@ func StructField(obj interface{}, fieldName string) (reflect.StructField, error)
 		return empty, errors.New("obj must not be nil")
 	}
 
-	ty := Type(obj)
-	if !isSupportedKind(ty.Kind(), []reflect.Kind{reflect.Struct}) {
+	typ := Type(obj)
+	if !isSupportedKind(typ.Kind(), []reflect.Kind{reflect.Struct}) {
 		return empty, errors.New("obj must be struct")
 	}
 
-	field, ok := ty.FieldByName(fieldName)
+	field, ok := typ.FieldByName(fieldName)
 	if !ok {
 		return empty, fmt.Errorf("no such field: %s in obj", fieldName)
 	}
@@ -173,14 +173,14 @@ func structFields(obj interface{}, flatten bool) ([]reflect.StructField, error) 
 		return nil, errors.New("obj must not be nil")
 	}
 
-	ty := Type(obj)
-	if !isSupportedKind(ty.Kind(), []reflect.Kind{reflect.Struct}) {
+	typ := Type(obj)
+	if !isSupportedKind(typ.Kind(), []reflect.Kind{reflect.Struct}) {
 		return nil, errors.New("obj must be struct")
 	}
 
 	var res []reflect.StructField
-	for i := 0; i < ty.NumField(); i++ {
-		field := ty.Field(i)
+	for i := 0; i < typ.NumField(); i++ {
+		field := typ.Field(i)
 		if !flatten {
 			res = append(res, field)
 			continue
@@ -205,15 +205,15 @@ func SelectStructFields(obj interface{}, f func(int, reflect.StructField) bool) 
 		return nil, errors.New("obj must not be nil")
 	}
 
-	ty := Type(obj)
-	if !isSupportedKind(ty.Kind(), []reflect.Kind{reflect.Struct}) {
+	typ := Type(obj)
+	if !isSupportedKind(typ.Kind(), []reflect.Kind{reflect.Struct}) {
 		return nil, errors.New("obj must be struct")
 	}
 
 	var res []reflect.StructField
-	for i := 0; i < ty.NumField(); i++ {
-		if f(i, ty.Field(i)) {
-			res = append(res, ty.Field(i))
+	for i := 0; i < typ.NumField(); i++ {
+		if f(i, typ.Field(i)) {
+			res = append(res, typ.Field(i))
 		}
 	}
 	return res, nil
@@ -225,13 +225,13 @@ func RangeStructFields(obj interface{}, f func(int, reflect.StructField) bool) e
 		return errors.New("obj must not be nil")
 	}
 
-	ty := Type(obj)
-	if !isSupportedKind(ty.Kind(), []reflect.Kind{reflect.Struct}) {
+	typ := Type(obj)
+	if !isSupportedKind(typ.Kind(), []reflect.Kind{reflect.Struct}) {
 		return errors.New("obj must be struct")
 	}
 
-	for i := 0; i < ty.NumField(); i++ {
-		if !f(i, ty.Field(i)) {
+	for i := 0; i < typ.NumField(); i++ {
+		if !f(i, typ.Field(i)) {
 			break
 		}
 	}

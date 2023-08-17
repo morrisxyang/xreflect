@@ -147,3 +147,171 @@ func EmbedFieldTypeStr(obj interface{}, fieldPath string) (string, error) {
 
 	return field.Type().String(), nil
 }
+
+// Fields ...
+func Fields(obj interface{}) (map[string]reflect.Value, error) {
+	return fields(obj, false, "", nil)
+}
+
+// FieldsDeep ...
+func FieldsDeep(obj interface{}) (map[string]reflect.Value, error) {
+	return fields(obj, true, "", nil)
+}
+
+func fields(obj interface{}, deep bool, prefix string, res map[string]reflect.Value) (map[string]reflect.Value, error) {
+	if obj == nil {
+		return nil, errors.New("obj must not be nil")
+	}
+
+	typ := Type(obj)
+	val := Value(obj)
+	if !isSupportedKind(typ.Kind(), []reflect.Kind{reflect.Struct}) {
+		return nil, errors.New("obj must be struct")
+	}
+
+	if res == nil {
+		res = make(map[string]reflect.Value)
+	}
+	for i := 0; i < typ.NumField(); i++ {
+		ct := typ.Field(i)
+		cf := val.Field(i)
+
+		key := ct.Name
+		if prefix != "" {
+			key = prefix + "." + ct.Name
+		}
+		res[key] = cf
+
+		if deep {
+			// struct
+			if cf.Kind() == reflect.Struct {
+				fields(cf.Interface(), deep, key, res)
+				continue
+			}
+
+			// struct pointer
+			if cf.Kind() == reflect.Ptr && !cf.IsNil() {
+				cf = cf.Elem()
+				if cf.Kind() == reflect.Struct {
+					fields(cf.Interface(), deep, key, res)
+				}
+				continue
+			}
+		}
+	}
+	return res, nil
+}
+
+// SelectFields ...
+func SelectFields(obj interface{}, f func(string, reflect.StructField, reflect.Value) bool) (map[string]reflect.Value,
+	error) {
+	return selectFields(obj, f, false, "", nil)
+}
+
+// SelectFieldsDeep ...
+func SelectFieldsDeep(obj interface{}, f func(string, reflect.StructField,
+	reflect.Value) bool) (map[string]reflect.Value,
+	error) {
+	return selectFields(obj, f, true, "", nil)
+}
+
+func selectFields(obj interface{}, f func(string, reflect.StructField, reflect.Value) bool,
+	deep bool, prefix string, res map[string]reflect.Value) (map[string]reflect.Value, error) {
+	if obj == nil {
+		return nil, errors.New("obj must not be nil")
+	}
+
+	typ := Type(obj)
+	val := Value(obj)
+	if !isSupportedKind(typ.Kind(), []reflect.Kind{reflect.Struct}) {
+		return nil, errors.New("obj must be struct")
+	}
+
+	if res == nil {
+		res = make(map[string]reflect.Value)
+	}
+	for i := 0; i < typ.NumField(); i++ {
+		ct := typ.Field(i)
+		cf := val.Field(i)
+
+		key := ct.Name
+		if prefix != "" {
+			key = prefix + "." + ct.Name
+		}
+		if f(key, ct, cf) {
+			res[key] = cf
+		}
+
+		if deep {
+			// struct
+			if cf.Kind() == reflect.Struct {
+				selectFields(cf.Interface(), f, deep, key, res)
+				continue
+			}
+
+			// struct pointer
+			if cf.Kind() == reflect.Ptr && !cf.IsNil() {
+				cf = cf.Elem()
+				if cf.Kind() == reflect.Struct {
+					selectFields(cf.Interface(), f, deep, key, res)
+				}
+				continue
+			}
+		}
+	}
+	return res, nil
+}
+
+// RangeFields ...
+func RangeFields(obj interface{}, f func(string, reflect.StructField, reflect.Value) bool) error {
+	return rangeFields(obj, f, false, "")
+}
+
+// RangeFieldsDeep ...
+func RangeFieldsDeep(obj interface{}, f func(string, reflect.StructField, reflect.Value) bool) error {
+	return rangeFields(obj, f, true, "")
+}
+
+func rangeFields(obj interface{}, f func(string, reflect.StructField, reflect.Value) bool,
+	deep bool, prefix string) error {
+	if obj == nil {
+		return errors.New("obj must not be nil")
+	}
+
+	typ := Type(obj)
+	val := Value(obj)
+	if !isSupportedKind(typ.Kind(), []reflect.Kind{reflect.Struct}) {
+		return errors.New("obj must be struct")
+	}
+
+	for i := 0; i < typ.NumField(); i++ {
+		ct := typ.Field(i)
+		cf := val.Field(i)
+
+		key := ct.Name
+		if prefix != "" {
+			key = prefix + "." + ct.Name
+		}
+		if !f(key, ct, cf) {
+			return nil
+		}
+
+		if deep {
+			// struct
+			if cf.Kind() == reflect.Struct {
+				rangeFields(cf.Interface(), f, deep, key)
+				continue
+			}
+
+			// struct pointer
+			if cf.Kind() == reflect.Ptr && !cf.IsNil() {
+				cf = cf.Elem()
+				if cf.Kind() == reflect.Struct {
+					rangeFields(cf.Interface(), f, deep, key)
+				}
+				continue
+			}
+		}
+	}
+	return nil
+}
