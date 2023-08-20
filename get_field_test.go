@@ -298,16 +298,16 @@ func TestEmbedFieldXMethods(t *testing.T) {
 }
 
 func TestFieldsXMethods(t *testing.T) {
-	m, err := fields(nil, true, "", nil)
+	m, err := fields(nil, true, "")
 	assert.EqualError(t, err, "obj must not be nil")
 
-	m, err = fields("nil", true, "", nil)
+	m, err = fields("nil", true, "")
 	assert.EqualError(t, err, "obj must be struct")
 
-	m, err = selectFields(nil, nil, true, "", nil)
+	m, err = selectFields(nil, nil, true, "")
 	assert.EqualError(t, err, "obj must not be nil")
 
-	m, err = selectFields("nil", nil, true, "", nil)
+	m, err = selectFields("nil", nil, true, "")
 	assert.EqualError(t, err, "obj must be struct")
 
 	err = rangeFields(nil, nil, true, "")
@@ -323,7 +323,7 @@ func TestFieldsXMethods(t *testing.T) {
 	}
 
 	a := &A{}
-	m, err = fields(a, true, "", nil)
+	m, err = fields(a, true, "")
 	assert.NoError(t, err)
 	for k, v := range m {
 		fmt.Printf("%s: %v\n", k, v)
@@ -403,7 +403,7 @@ func TestFieldsXMethods(t *testing.T) {
 		int:    0,
 		string: "",
 	}
-	m, err = fields(a, true, "", nil)
+	m, err = fields(a, true, "")
 	assert.NoError(t, err)
 	for k, v := range m {
 		fmt.Printf("%s: %v\n", k, v)

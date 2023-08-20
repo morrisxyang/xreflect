@@ -150,15 +150,15 @@ func EmbedFieldTypeStr(obj interface{}, fieldPath string) (string, error) {
 
 // Fields ...
 func Fields(obj interface{}) (map[string]reflect.Value, error) {
-	return fields(obj, false, "", nil)
+	return fields(obj, false, "")
 }
 
 // FieldsDeep ...
 func FieldsDeep(obj interface{}) (map[string]reflect.Value, error) {
-	return fields(obj, true, "", nil)
+	return fields(obj, true, "")
 }
 
-func fields(obj interface{}, deep bool, prefix string, res map[string]reflect.Value) (map[string]reflect.Value, error) {
+func fields(obj interface{}, deep bool, prefix string) (map[string]reflect.Value, error) {
 	if obj == nil {
 		return nil, errors.New("obj must not be nil")
 	}
@@ -169,9 +169,7 @@ func fields(obj interface{}, deep bool, prefix string, res map[string]reflect.Va
 		return nil, errors.New("obj must be struct")
 	}
 
-	if res == nil {
-		res = make(map[string]reflect.Value)
-	}
+	res := make(map[string]reflect.Value)
 	for i := 0; i < typ.NumField(); i++ {
 		ct := typ.Field(i)
 		cf := val.Field(i)
@@ -185,15 +183,25 @@ func fields(obj interface{}, deep bool, prefix string, res map[string]reflect.Va
 		if deep {
 			// struct
 			if cf.Kind() == reflect.Struct {
-				fields(cf.Interface(), deep, key, res)
+				m, err := fields(cf.Interface(), deep, key)
+				if err != nil {
+					return nil, err
+				}
+				for k, v := range m {
+					res[k] = v
+				}
 				continue
 			}
 
 			// struct pointer
 			if cf.Kind() == reflect.Ptr && !cf.IsNil() {
 				cf = cf.Elem()
-				if cf.Kind() == reflect.Struct {
-					fields(cf.Interface(), deep, key, res)
+				m, err := fields(cf.Interface(), deep, key)
+				if err != nil {
+					return nil, err
+				}
+				for k, v := range m {
+					res[k] = v
 				}
 				continue
 			}
@@ -205,18 +213,18 @@ func fields(obj interface{}, deep bool, prefix string, res map[string]reflect.Va
 // SelectFields ...
 func SelectFields(obj interface{}, f func(string, reflect.StructField, reflect.Value) bool) (map[string]reflect.Value,
 	error) {
-	return selectFields(obj, f, false, "", nil)
+	return selectFields(obj, f, false, "")
 }
 
 // SelectFieldsDeep ...
 func SelectFieldsDeep(obj interface{}, f func(string, reflect.StructField,
 	reflect.Value) bool) (map[string]reflect.Value,
 	error) {
-	return selectFields(obj, f, true, "", nil)
+	return selectFields(obj, f, true, "")
 }
 
 func selectFields(obj interface{}, f func(string, reflect.StructField, reflect.Value) bool,
-	deep bool, prefix string, res map[string]reflect.Value) (map[string]reflect.Value, error) {
+	deep bool, prefix string) (map[string]reflect.Value, error) {
 	if obj == nil {
 		return nil, errors.New("obj must not be nil")
 	}
@@ -227,9 +235,7 @@ func selectFields(obj interface{}, f func(string, reflect.StructField, reflect.V
 		return nil, errors.New("obj must be struct")
 	}
 
-	if res == nil {
-		res = make(map[string]reflect.Value)
-	}
+	res := make(map[string]reflect.Value)
 	for i := 0; i < typ.NumField(); i++ {
 		ct := typ.Field(i)
 		cf := val.Field(i)
@@ -245,15 +251,25 @@ func selectFields(obj interface{}, f func(string, reflect.StructField, reflect.V
 		if deep {
 			// struct
 			if cf.Kind() == reflect.Struct {
-				selectFields(cf.Interface(), f, deep, key, res)
+				m, err := selectFields(cf.Interface(), f, deep, key)
+				if err != nil {
+					return nil, err
+				}
+				for k, v := range m {
+					res[k] = v
+				}
 				continue
 			}
 
 			// struct pointer
 			if cf.Kind() == reflect.Ptr && !cf.IsNil() {
 				cf = cf.Elem()
-				if cf.Kind() == reflect.Struct {
-					selectFields(cf.Interface(), f, deep, key, res)
+				m, err := selectFields(cf.Interface(), f, deep, key)
+				if err != nil {
+					return nil, err
+				}
+				for k, v := range m {
+					res[k] = v
 				}
 				continue
 			}
@@ -299,15 +315,19 @@ func rangeFields(obj interface{}, f func(string, reflect.StructField, reflect.Va
 		if deep {
 			// struct
 			if cf.Kind() == reflect.Struct {
-				rangeFields(cf.Interface(), f, deep, key)
+				err := rangeFields(cf.Interface(), f, deep, key)
+				if err != nil {
+					return err
+				}
 				continue
 			}
 
 			// struct pointer
 			if cf.Kind() == reflect.Ptr && !cf.IsNil() {
 				cf = cf.Elem()
-				if cf.Kind() == reflect.Struct {
-					rangeFields(cf.Interface(), f, deep, key)
+				err := rangeFields(cf.Interface(), f, deep, key)
+				if err != nil {
+					return err
 				}
 				continue
 			}
