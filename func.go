@@ -116,3 +116,18 @@ func CallMethod(obj interface{}, method string, params ...interface{}) ([]reflec
 
 	return CallFunc(methodValue.Interface(), params...)
 }
+
+// CallMethodSlice ...
+func CallMethodSlice(obj interface{}, method string, params ...interface{}) ([]reflect.Value, error) {
+	if obj == nil {
+		return nil, errors.New("fn must not be nil")
+	}
+
+	val := reflect.ValueOf(obj)
+	methodValue := val.MethodByName(method)
+	if methodValue.IsZero() {
+		return nil, fmt.Errorf("method: %s not found", method)
+	}
+
+	return CallFuncSlice(methodValue.Interface(), params...)
+}
