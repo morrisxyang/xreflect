@@ -105,12 +105,12 @@ func CallFuncSlice(fn interface{}, args ...interface{}) ([]reflect.Value, error)
 // CallMethod ...
 func CallMethod(obj interface{}, method string, params ...interface{}) ([]reflect.Value, error) {
 	if obj == nil {
-		return nil, errors.New("fn must not be nil")
+		return nil, errors.New("obj must not be nil")
 	}
 
 	val := reflect.ValueOf(obj)
 	methodValue := val.MethodByName(method)
-	if methodValue.IsZero() {
+	if !methodValue.IsValid() {
 		return nil, fmt.Errorf("method: %s not found", method)
 	}
 
@@ -120,12 +120,12 @@ func CallMethod(obj interface{}, method string, params ...interface{}) ([]reflec
 // CallMethodSlice ...
 func CallMethodSlice(obj interface{}, method string, params ...interface{}) ([]reflect.Value, error) {
 	if obj == nil {
-		return nil, errors.New("fn must not be nil")
+		return nil, errors.New("obj must not be nil")
 	}
 
 	val := reflect.ValueOf(obj)
 	methodValue := val.MethodByName(method)
-	if methodValue.IsZero() {
+	if !methodValue.IsValid() {
 		return nil, fmt.Errorf("method: %s not found", method)
 	}
 
