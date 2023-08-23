@@ -72,8 +72,8 @@ func FieldTypeStr(obj interface{}, fieldName string) (string, error) {
 	return field.Type().String(), nil
 }
 
-// EmbedField 返回嵌套结构体的字段, 根据指定的 fieldPath.
-// The obj can either be a structure or pointer to structure.
+// EmbedField returns the reflect.Value of a field in the nested structure of obj based on the specified fieldPath.
+// The obj can either be a structure or a pointer to a structure.
 func EmbedField(obj interface{}, fieldPath string) (reflect.Value, error) {
 	var empty reflect.Value
 	if obj == nil {
@@ -114,8 +114,8 @@ func EmbedField(obj interface{}, fieldPath string) (reflect.Value, error) {
 	return target, nil
 }
 
-// EmbedFieldValue ...
-// The obj can either be a structure or pointer to structure.
+// EmbedFieldValue returns the actual value of a field in the nested structure of obj based on the specified fieldPath.
+// The obj can either be a structure or a pointer to a structure.
 func EmbedFieldValue(obj interface{}, fieldPath string) (interface{}, error) {
 	field, err := EmbedField(obj, fieldPath)
 	if err != nil {
@@ -125,8 +125,8 @@ func EmbedFieldValue(obj interface{}, fieldPath string) (interface{}, error) {
 	return field.Interface(), nil
 }
 
-// EmbedFieldKind ...
-// The obj can either be a structure or pointer to structure.
+// EmbedFieldKind returns the reflect.Kind of a field in the nested structure of obj based on the specified fieldPath.
+// The obj can either be a structure or a pointer to a structure.
 func EmbedFieldKind(obj interface{}, fieldPath string) (reflect.Kind, error) {
 	field, err := EmbedField(obj, fieldPath)
 	if err != nil {
@@ -136,8 +136,8 @@ func EmbedFieldKind(obj interface{}, fieldPath string) (reflect.Kind, error) {
 	return field.Kind(), nil
 }
 
-// EmbedFieldType ...
-// The obj can either be a structure or pointer to structure.
+// EmbedFieldType returns the reflect.Type of a field in the nested structure of obj based on the specified fieldPath.
+// The obj can either be a structure or a pointer to a structure.
 func EmbedFieldType(obj interface{}, fieldPath string) (reflect.Type, error) {
 	field, err := EmbedField(obj, fieldPath)
 	if err != nil {
@@ -146,8 +146,8 @@ func EmbedFieldType(obj interface{}, fieldPath string) (reflect.Type, error) {
 	return field.Type(), nil
 }
 
-// EmbedFieldTypeStr ...
-// The obj can either be a structure or pointer to structure.
+// EmbedFieldTypeStr returns the reflect.Type of a field in the nested structure of obj based on the specified fieldPath.
+// The obj can either be a structure or a pointer to a structure.
 func EmbedFieldTypeStr(obj interface{}, fieldPath string) (string, error) {
 	field, err := EmbedField(obj, fieldPath)
 	if err != nil {
@@ -157,13 +157,14 @@ func EmbedFieldTypeStr(obj interface{}, fieldPath string) (string, error) {
 	return field.Type().String(), nil
 }
 
-// Fields ...
-// The obj can either be a structure or pointer to structure.
+// Fields returns a map of reflect.Value containing all the fields of the obj, with the field names as keys.
+// The obj can either be a structure or a pointer to a structure.
 func Fields(obj interface{}) (map[string]reflect.Value, error) {
 	return fields(obj, false, "")
 }
 
-// FieldsDeep ...
+// FieldsDeep traverses the obj deeply, including all nested structures, and returns all fields as reflect.Value
+// in the form of a map, where the key is the path of the field.
 // The obj can either be a structure or pointer to structure.
 func FieldsDeep(obj interface{}) (map[string]reflect.Value, error) {
 	return fields(obj, true, "")
@@ -192,7 +193,7 @@ func fields(obj interface{}, deep bool, prefix string) (map[string]reflect.Value
 		res[key] = cf
 
 		if deep {
-			// struct
+			// deal struct
 			if cf.Kind() == reflect.Struct {
 				m, err := fields(cf.Interface(), deep, key)
 				if err != nil {
@@ -204,7 +205,7 @@ func fields(obj interface{}, deep bool, prefix string) (map[string]reflect.Value
 				continue
 			}
 
-			// struct pointer
+			// deal struct pointer
 			if cf.Kind() == reflect.Ptr && !cf.IsNil() {
 				cf = cf.Elem()
 				m, err := fields(cf.Interface(), deep, key)
@@ -221,17 +222,19 @@ func fields(obj interface{}, deep bool, prefix string) (map[string]reflect.Value
 	return res, nil
 }
 
-// SelectFields ...
+// SelectFields has the same functionality as Fields, but only the fields for which the function f returns true
+// will be returned.
 // The obj can either be a structure or pointer to structure.
 func SelectFields(obj interface{}, f func(string, reflect.StructField, reflect.Value) bool) (map[string]reflect.Value,
 	error) {
 	return selectFields(obj, f, false, "")
 }
 
-// SelectFieldsDeep ...
+// SelectFieldsDeep has the same functionality as FieldsDeep, but only the fields for which the function f returns true
+// will be returned.
 // The obj can either be a structure or pointer to structure.
-func SelectFieldsDeep(obj interface{}, f func(string, reflect.StructField,
-	reflect.Value) bool) (map[string]reflect.Value,
+func SelectFieldsDeep(obj interface{},
+	f func(string, reflect.StructField, reflect.Value) bool) (map[string]reflect.Value,
 	error) {
 	return selectFields(obj, f, true, "")
 }
@@ -262,7 +265,7 @@ func selectFields(obj interface{}, f func(string, reflect.StructField, reflect.V
 		}
 
 		if deep {
-			// struct
+			// deal struct
 			if cf.Kind() == reflect.Struct {
 				m, err := selectFields(cf.Interface(), f, deep, key)
 				if err != nil {
@@ -274,7 +277,7 @@ func selectFields(obj interface{}, f func(string, reflect.StructField, reflect.V
 				continue
 			}
 
-			// struct pointer
+			// deal struct pointer
 			if cf.Kind() == reflect.Ptr && !cf.IsNil() {
 				cf = cf.Elem()
 				m, err := selectFields(cf.Interface(), f, deep, key)
@@ -291,13 +294,15 @@ func selectFields(obj interface{}, f func(string, reflect.StructField, reflect.V
 	return res, nil
 }
 
-// RangeFields ...
+// RangeFields iterates over all fields of obj and calls function f on each field.
+// If function f returns false, the iteration stops.
 // The obj can either be a structure or pointer to structure.
 func RangeFields(obj interface{}, f func(string, reflect.StructField, reflect.Value) bool) error {
 	return rangeFields(obj, f, false, "")
 }
 
-// RangeFieldsDeep ...
+// RangeFieldsDeep performs a deep traversal of obj and its nested structures, and calls function f on each field.
+// If the function f returns false, the iteration stops.
 // The obj can either be a structure or pointer to structure.
 func RangeFieldsDeep(obj interface{}, f func(string, reflect.StructField, reflect.Value) bool) error {
 	return rangeFields(obj, f, true, "")
@@ -328,7 +333,7 @@ func rangeFields(obj interface{}, f func(string, reflect.StructField, reflect.Va
 		}
 
 		if deep {
-			// struct
+			// deal struct
 			if cf.Kind() == reflect.Struct {
 				err := rangeFields(cf.Interface(), f, deep, key)
 				if err != nil {
@@ -337,7 +342,7 @@ func rangeFields(obj interface{}, f func(string, reflect.StructField, reflect.Va
 				continue
 			}
 
-			// struct pointer
+			// deal struct pointer
 			if cf.Kind() == reflect.Ptr && !cf.IsNil() {
 				cf = cf.Elem()
 				err := rangeFields(cf.Interface(), f, deep, key)
