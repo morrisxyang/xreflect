@@ -7,7 +7,8 @@ import (
 	"strings"
 )
 
-// Field ...
+// Field returns the reflect.Value of the provided obj field.
+// The obj can either be a structure or pointer to structure.
 func Field(obj interface{}, fieldName string) (reflect.Value, error) {
 	var empty reflect.Value
 	if obj == nil {
@@ -27,7 +28,8 @@ func Field(obj interface{}, fieldName string) (reflect.Value, error) {
 	return field, nil
 }
 
-// FieldValue ...
+// FieldValue returns the actual value of the provided obj field.
+// The obj can either be a structure or pointer to structure.
 func FieldValue(obj interface{}, fieldName string) (interface{}, error) {
 	field, err := Field(obj, fieldName)
 	if err != nil {
@@ -37,7 +39,8 @@ func FieldValue(obj interface{}, fieldName string) (interface{}, error) {
 	return field.Interface(), nil
 }
 
-// FieldKind ...
+// FieldKind returns the reflect.Kind of the provided obj field.
+// The obj can either be a structure or pointer to structure.
 func FieldKind(obj interface{}, fieldName string) (reflect.Kind, error) {
 	field, err := Field(obj, fieldName)
 	if err != nil {
@@ -47,8 +50,8 @@ func FieldKind(obj interface{}, fieldName string) (reflect.Kind, error) {
 	return field.Kind(), nil
 }
 
-// FieldType returns the kind of the provided obj field.
-// The `obj` can either be a structure or pointer to structure.
+// FieldType returns the reflect.Type of the provided obj field.
+// The obj can either be a structure or pointer to structure.
 func FieldType(obj interface{}, fieldName string) (reflect.Type, error) {
 	field, err := Field(obj, fieldName)
 	if err != nil {
@@ -58,7 +61,8 @@ func FieldType(obj interface{}, fieldName string) (reflect.Type, error) {
 	return field.Type(), nil
 }
 
-// FieldTypeStr ...
+// FieldTypeStr returns the string of reflect.Type of the provided obj field.
+// The obj can either be a structure or pointer to structure.
 func FieldTypeStr(obj interface{}, fieldName string) (string, error) {
 	field, err := Field(obj, fieldName)
 	if err != nil {
@@ -68,7 +72,8 @@ func FieldTypeStr(obj interface{}, fieldName string) (string, error) {
 	return field.Type().String(), nil
 }
 
-// EmbedField ...
+// EmbedField 返回嵌套结构体的字段, 根据指定的 fieldPath.
+// The obj can either be a structure or pointer to structure.
 func EmbedField(obj interface{}, fieldPath string) (reflect.Value, error) {
 	var empty reflect.Value
 	if obj == nil {
@@ -110,6 +115,7 @@ func EmbedField(obj interface{}, fieldPath string) (reflect.Value, error) {
 }
 
 // EmbedFieldValue ...
+// The obj can either be a structure or pointer to structure.
 func EmbedFieldValue(obj interface{}, fieldPath string) (interface{}, error) {
 	field, err := EmbedField(obj, fieldPath)
 	if err != nil {
@@ -120,6 +126,7 @@ func EmbedFieldValue(obj interface{}, fieldPath string) (interface{}, error) {
 }
 
 // EmbedFieldKind ...
+// The obj can either be a structure or pointer to structure.
 func EmbedFieldKind(obj interface{}, fieldPath string) (reflect.Kind, error) {
 	field, err := EmbedField(obj, fieldPath)
 	if err != nil {
@@ -130,6 +137,7 @@ func EmbedFieldKind(obj interface{}, fieldPath string) (reflect.Kind, error) {
 }
 
 // EmbedFieldType ...
+// The obj can either be a structure or pointer to structure.
 func EmbedFieldType(obj interface{}, fieldPath string) (reflect.Type, error) {
 	field, err := EmbedField(obj, fieldPath)
 	if err != nil {
@@ -139,6 +147,7 @@ func EmbedFieldType(obj interface{}, fieldPath string) (reflect.Type, error) {
 }
 
 // EmbedFieldTypeStr ...
+// The obj can either be a structure or pointer to structure.
 func EmbedFieldTypeStr(obj interface{}, fieldPath string) (string, error) {
 	field, err := EmbedField(obj, fieldPath)
 	if err != nil {
@@ -149,11 +158,13 @@ func EmbedFieldTypeStr(obj interface{}, fieldPath string) (string, error) {
 }
 
 // Fields ...
+// The obj can either be a structure or pointer to structure.
 func Fields(obj interface{}) (map[string]reflect.Value, error) {
 	return fields(obj, false, "")
 }
 
 // FieldsDeep ...
+// The obj can either be a structure or pointer to structure.
 func FieldsDeep(obj interface{}) (map[string]reflect.Value, error) {
 	return fields(obj, true, "")
 }
@@ -211,12 +222,14 @@ func fields(obj interface{}, deep bool, prefix string) (map[string]reflect.Value
 }
 
 // SelectFields ...
+// The obj can either be a structure or pointer to structure.
 func SelectFields(obj interface{}, f func(string, reflect.StructField, reflect.Value) bool) (map[string]reflect.Value,
 	error) {
 	return selectFields(obj, f, false, "")
 }
 
 // SelectFieldsDeep ...
+// The obj can either be a structure or pointer to structure.
 func SelectFieldsDeep(obj interface{}, f func(string, reflect.StructField,
 	reflect.Value) bool) (map[string]reflect.Value,
 	error) {
@@ -279,11 +292,13 @@ func selectFields(obj interface{}, f func(string, reflect.StructField, reflect.V
 }
 
 // RangeFields ...
+// The obj can either be a structure or pointer to structure.
 func RangeFields(obj interface{}, f func(string, reflect.StructField, reflect.Value) bool) error {
 	return rangeFields(obj, f, false, "")
 }
 
 // RangeFieldsDeep ...
+// The obj can either be a structure or pointer to structure.
 func RangeFieldsDeep(obj interface{}, f func(string, reflect.StructField, reflect.Value) bool) error {
 	return rangeFields(obj, f, true, "")
 }

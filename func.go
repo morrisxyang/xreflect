@@ -6,9 +6,11 @@ import (
 	"reflect"
 )
 
-// CallFunc 通过反射调用函数并返回结果.
-// 支持可变参数, 底层使用 reflect.Value 的 Call 方法, 可变参数需拉平, 否则需使用 CallFuncSlice.
-// 无需从返回值 []reflect.Value 中解析错误, 如果被调用函数最后一个返回值返回错误, 错误将被提取出来作为 CallFunc 的最后一个返回值返回.
+// CallFunc invokes a function using reflection and returns the result.
+// It supports variadic arguments and uses the Call method of reflect.Value underneath.
+// Variadic arguments need to be flattened, otherwise should use CallFuncSlice.
+// There is no need to parse errors from the returned []reflect.Value. If the called function's last return value
+// is an error, it will be extracted and returned as the last return value of CallFunc.
 func CallFunc(fn interface{}, args ...interface{}) ([]reflect.Value, error) {
 	if fn == nil {
 		return nil, errors.New("fn must not be nil")
@@ -32,7 +34,8 @@ func CallFunc(fn interface{}, args ...interface{}) ([]reflect.Value, error) {
 	for i, arg := range args {
 		// If the argument is nil, use zero value
 		if arg == nil {
-			// 处理可变参数, 可变参数的类型是 Slice, 这里需要创建其元素类型的零值.
+			// Handling variadic parameters, whose type is a slice.
+			// We need to create the zero value of its element type here.
 			if typ.IsVariadic() && i >= typ.NumIn()-1 {
 				reflectArgs[i] = reflect.New(typ.In(typ.NumIn() - 1).Elem()).Elem()
 			} else {
@@ -47,7 +50,7 @@ func CallFunc(fn interface{}, args ...interface{}) ([]reflect.Value, error) {
 	retValues = val.Call(reflectArgs)
 
 	if len(retValues) > 0 {
-		// 如果函数最后一个返回值为 error 且不为空, 提取出来
+		// If the last return value of the function is an error and not empty, extract it
 		if errResult := retValues[len(retValues)-1].Interface(); errResult != nil {
 			if err, ok := errResult.(error); ok {
 				return retValues[0 : len(retValues)-1], err
@@ -58,7 +61,8 @@ func CallFunc(fn interface{}, args ...interface{}) ([]reflect.Value, error) {
 	return retValues, nil
 }
 
-// CallFuncSlice 功能同 CallFunc 一致, 支持可变参数, 但底层使用 reflect.Value 的 CallSlice 方法.
+// CallFuncSlice has the same functionality as CallFunc, it must have variadic parameters, but it uses
+// the CallSlice method of reflect.Value under the hood.
 // CallSlice calls the variadic function v with the input arguments in,
 // assigning the slice in[len(in)-1] to v's final variadic argument.
 // For example, if len(in) == 3, v.CallSlice(in) represents the Go call v(in[0], in[1], in[2]...).
@@ -95,7 +99,7 @@ func CallFuncSlice(fn interface{}, args ...interface{}) ([]reflect.Value, error)
 	retValues = val.CallSlice(reflectArgs)
 
 	if len(retValues) > 0 {
-		// 如果函数最后一个返回值为 error 且不为空, 提取
+		// If the last return value of the function is an error and not empty, extract it.
 		if errResult := retValues[len(retValues)-1].Interface(); errResult != nil {
 			if err, ok := errResult.(error); ok {
 				return retValues[0 : len(retValues)-1], err
@@ -106,9 +110,9 @@ func CallFuncSlice(fn interface{}, args ...interface{}) ([]reflect.Value, error)
 	return retValues, nil
 }
 
-// CallMethod 调用 obj 对象的 method 方法并返回结果, 支持可变参数.
-// obj 对象必须是结构体或结构体指针.
-// 底层使用 CallFunc, 详见 CallFunc.
+// CallMethod calls the method `method` of the `obj` object and returns the result, supporting variadic parameters.
+// The `obj` object must be a struct or a struct pointer.
+// It internally uses CallFunc, see CallFunc for more details.
 func CallMethod(obj interface{}, method string, params ...interface{}) ([]reflect.Value, error) {
 	if obj == nil {
 		return nil, errors.New("obj must not be nil")
@@ -128,7 +132,8 @@ func CallMethod(obj interface{}, method string, params ...interface{}) ([]reflec
 	return CallFunc(methodValue.Interface(), params...)
 }
 
-// CallMethodSlice 作用同 CallMethod, 底层使用 CallFuncSlice, 详见 CallFuncSlice.
+// CallMethodSlice has the same functionality as CallMethod, and it uses CallFuncSlice as its underlying implementation.
+// For more details, refer to the CallFuncSlice documentation.
 func CallMethodSlice(obj interface{}, method string, params ...interface{}) ([]reflect.Value, error) {
 	if obj == nil {
 		return nil, errors.New("obj must not be nil")

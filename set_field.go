@@ -8,7 +8,9 @@ import (
 	"unsafe"
 )
 
-// SetField 设置 field
+// SetField sets the fieldName field of the obj object according to the fieldValue parameter.
+// The obj can either be a structure or a pointer to a structure.
+// The type of fieldValue must be compatible with the type of the fieldName field, otherwise it will panic.
 func SetField(obj interface{}, fieldName string, fieldValue interface{}) error {
 	if obj == nil {
 		return errors.New("obj must not be nil")
@@ -38,7 +40,8 @@ func SetField(obj interface{}, fieldName string, fieldValue interface{}) error {
 	return nil
 }
 
-// SetPrivateField 设置私有字段
+// SetPrivateField is similar to SetField, but it allows you to set private fields of an object.
+// The obj can be either a structure or a pointer to a structure.
 func SetPrivateField(obj interface{}, fieldName string, fieldValue interface{}) error {
 	if obj == nil {
 		return errors.New("obj must not be nil")
@@ -70,7 +73,10 @@ func SetPrivateField(obj interface{}, fieldName string, fieldValue interface{}) 
 	return nil
 }
 
-// SetEmbedField 设置嵌套的结构体字段, obj 必须是指针
+// SetEmbedField sets a nested struct field using fieldPath. The rest of the functionality is the same as SetField.
+// For example, fieldPath can be "FieldA.FieldB.FieldC", where FieldA and FieldB must be structures or pointers
+// to structures. If FieldB does not exist, it will be automatically created.
+// The obj can either be a structure or pointer to structure.
 func SetEmbedField(obj interface{}, fieldPath string, fieldValue interface{}) error {
 	if obj == nil {
 		return errors.New("obj must not be nil")
@@ -101,7 +107,7 @@ func SetEmbedField(obj interface{}, fieldPath string, fieldValue interface{}) er
 			break
 		}
 		if target.Kind() == reflect.Pointer {
-			//  结构体指针为空则自行创建
+			// If the structure pointer is nil, create it.
 			if target.IsNil() {
 				target.Set(reflect.New(target.Type().Elem()).Elem().Addr())
 			}

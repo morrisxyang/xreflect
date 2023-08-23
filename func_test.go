@@ -1,4 +1,3 @@
-// Package xreflect ...
 package xreflect
 
 import (
