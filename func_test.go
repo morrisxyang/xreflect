@@ -67,7 +67,7 @@ var variadicFunc = func(pi *int, ps ...*int) int {
 	return sum
 }
 
-func TestExecFunc(t *testing.T) {
+func TestCallFunc(t *testing.T) {
 	_, err := CallFunc(nil, nil)
 	assert.EqualError(t, err, "fn must not be nil")
 
@@ -119,10 +119,6 @@ func TestExecFunc(t *testing.T) {
 	assert.Equal(t, nil, err)
 	assert.Equal(t, 0, res[0].Interface())
 
-	// res, err = CallFuncSlice(pureVariadicFunc)
-	// assert.Equal(t, nil, err)
-	// assert.Equal(t, 0, res[0].Interface())
-
 	vp1 := 1
 	vp2 := 2
 	vp3 := 3
@@ -164,4 +160,73 @@ func TestExecFunc(t *testing.T) {
 	assert.Equal(t, nil, err)
 	assert.Equal(t, 6, res[0].Interface())
 
+}
+
+type A struct {
+	Int int
+}
+
+func (a A) GetInt() int {
+	return a.Int
+}
+
+func (a *A) AddOne() int {
+	a.Int += 1
+	return a.Int
+}
+
+func (a *A) AddInts(is ...int) int {
+	for _, i := range is {
+		a.Int += i
+	}
+	return a.Int
+}
+
+func TestCallMethod(t *testing.T) {
+	_, err := CallMethod(nil, "")
+	assert.EqualError(t, err, "obj must not be nil")
+
+	_, err = CallMethod(&Person{}, "ABC")
+	assert.EqualError(t, err, "method: ABC not found")
+
+	res, err := CallMethod(&A{1}, "GetInt")
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 1, res[0].Interface())
+
+	res, err = CallMethod(A{1}, "GetInt")
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 1, res[0].Interface())
+
+	res, err = CallMethod(&A{1}, "AddOne")
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 2, res[0].Interface())
+
+	res, err = CallMethod(A{1}, "AddOne")
+	assert.EqualError(t, err, "method: AddOne not found")
+
+	res, err = CallMethod(&A{1}, "AddInts")
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 1, res[0].Interface())
+
+	res, err = CallMethod(&A{1}, "AddInts", 1, 1)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 3, res[0].Interface())
+
+	is := []interface{}{1, 1}
+	res, err = CallMethod(&A{1}, "AddInts", is...)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 3, res[0].Interface())
+
+	_, err = CallMethodSlice(nil, "")
+	assert.EqualError(t, err, "obj must not be nil")
+
+	_, err = CallMethodSlice(&Person{}, "ABC")
+	assert.EqualError(t, err, "method: ABC not found")
+
+	_, err = CallMethodSlice(&A{1}, "AddInts")
+	assert.EqualError(t, err, "use reflect.CallSlice, fn params num should be 1, but got 0")
+
+	res, err = CallMethodSlice(&A{1}, "AddInts", []int{1, 1})
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 3, res[0].Interface())
 }
