@@ -1,4 +1,9 @@
-// Package xreflect 反射工具库
+// Package xreflect is a reflection utility library.
+//
+// The xreflect package aims to provide developers with high-level abstractions over the Go standard reflect library.
+// This library's API is often considered low-level and unintuitive, making simple tasks like accessing structure
+// field values or tags more complex than necessary.
+
 package xreflect
 
 import (
@@ -8,11 +13,12 @@ import (
 
 // NewInstance returns a new instance of the same type as the input value.
 // The returned value will contain the zero value of the type.
-func NewInstance(value interface{}) interface{} {
-	if value == nil {
+// If obj type is a slice, chan, etc. , it will create an instance with the same capacity.
+func NewInstance(obj interface{}) interface{} {
+	if obj == nil {
 		return nil
 	}
-	entity := reflect.ValueOf(value)
+	entity := reflect.ValueOf(obj)
 
 	switch entity.Kind() {
 	case reflect.Ptr:
@@ -34,7 +40,8 @@ func NewInstance(value interface{}) interface{} {
 	return entity.Interface()
 }
 
-// Type ...
+// Type returns the reflection type of obj.
+// If obj is a pointer, it will be automatically dereferenced once.
 func Type(obj interface{}) reflect.Type {
 	if obj == nil {
 		return nil
@@ -51,7 +58,8 @@ func Type(obj interface{}) reflect.Type {
 	return reflect.TypeOf(obj)
 }
 
-// TypePenetrateElem ...
+// TypePenetrateElem performs the same functionality as Type, but it will parse through all pointers
+// until the final type is reached.
 func TypePenetrateElem(obj interface{}) reflect.Type {
 	if obj == nil {
 		return nil
@@ -63,7 +71,8 @@ func TypePenetrateElem(obj interface{}) reflect.Type {
 	return ty
 }
 
-// Value ...
+// Value returns the reflection value of obj.
+// If obj is a pointer, it will be automatically dereferenced once.
 func Value(obj interface{}) reflect.Value {
 	var empty reflect.Value
 	if obj == nil {
@@ -78,7 +87,8 @@ func Value(obj interface{}) reflect.Value {
 	return reflect.ValueOf(obj)
 }
 
-// ValuePenetrateElem ...
+// ValuePenetrateElem performs the same functionality as Value, but it will parse through all pointers
+// until the final type is reached.
 func ValuePenetrateElem(obj interface{}) reflect.Value {
 	var empty reflect.Value
 	if obj == nil {
@@ -91,7 +101,7 @@ func ValuePenetrateElem(obj interface{}) reflect.Value {
 	return ty
 }
 
-// GetPkgPath return  the package patch
+// GetPkgPath returns the package path of obj.
 func GetPkgPath(obj interface{}) string {
 	ty := Type(obj)
 	if ty == nil {
@@ -100,7 +110,7 @@ func GetPkgPath(obj interface{}) string {
 	return ty.PkgPath()
 }
 
-// Implements ...
+// Implements returns whether obj implements the given interface in.
 func Implements(obj interface{}, in interface{}) bool {
 	objType := reflect.TypeOf(obj)
 	if objType == nil {
