@@ -1,7 +1,9 @@
 # xreflect
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/morrisxyang/xreflect)](https://goreportcard.com/report/github.com/morrisxyang/xreflect)
+[![Coverage Status](https://coveralls.io/repos/github/morrisxyang/xreflect/badge.svg)](https://coveralls.io/github/morrisxyang/xreflect)
 ![Static Badge](https://img.shields.io/badge/License-BSD2-Green)
-![Static Badge](https://img.shields.io/badge/go%20verion-%3E%3D1.15-blue)
+![Static Badge](https://img.shields.io/badge/go%20verion-%3E%3D1.18-blue)
 
 一个简单的, 易用的反射工具库.
 
