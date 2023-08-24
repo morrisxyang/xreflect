@@ -7,7 +7,8 @@ import (
 	"strings"
 )
 
-// StructField 获取结构体的字段
+// StructField returns the reflect.StructField of the provided obj field.
+// The obj can either be a structure or pointer to structure.
 func StructField(obj interface{}, fieldName string) (reflect.StructField, error) {
 	var empty reflect.StructField
 	if obj == nil {
@@ -26,7 +27,8 @@ func StructField(obj interface{}, fieldName string) (reflect.StructField, error)
 	return field, nil
 }
 
-// StructFieldKind ...
+// StructFieldKind returns the reflect.Kind of the provided obj field.
+// The obj can either be a structure or pointer to structure.
 func StructFieldKind(obj interface{}, fieldName string) (reflect.Kind, error) {
 	field, err := StructField(obj, fieldName)
 	if err != nil {
@@ -36,7 +38,8 @@ func StructFieldKind(obj interface{}, fieldName string) (reflect.Kind, error) {
 	return field.Type.Kind(), nil
 }
 
-// StructFieldType ...
+// StructFieldType returns the reflect.Type of the provided obj field.
+// The obj can either be a structure or pointer to structure.
 func StructFieldType(obj interface{}, fieldName string) (reflect.Type, error) {
 	field, err := StructField(obj, fieldName)
 	if err != nil {
@@ -46,7 +49,8 @@ func StructFieldType(obj interface{}, fieldName string) (reflect.Type, error) {
 	return field.Type, nil
 }
 
-// StructFieldTypeStr ...
+// StructFieldTypeStr returns the string of reflect.Type of the provided obj field.
+// The obj can either be a structure or pointer to structure.
 func StructFieldTypeStr(obj interface{}, fieldName string) (string, error) {
 	field, err := StructField(obj, fieldName)
 	if err != nil {
@@ -56,8 +60,8 @@ func StructFieldTypeStr(obj interface{}, fieldName string) (string, error) {
 	return field.Type.String(), nil
 }
 
-// HasStructField checks if the provided `obj` struct has field named `name`.
-// The `obj` can either be a structure or pointer to structure.
+// HasStructField checks if the provided obj struct has field named fieldName.
+// The obj can either be a structure or pointer to structure.
 func HasStructField(obj interface{}, fieldName string) (bool, error) {
 	_, err := StructField(obj, fieldName)
 	if err != nil {
@@ -67,8 +71,8 @@ func HasStructField(obj interface{}, fieldName string) (bool, error) {
 	return true, nil
 }
 
-// StructFieldTag returns the provided obj field tag.
-// The `obj` parameter can either be a structure or pointer to structure.
+// StructFieldTag returns the reflect.StructTag of the provided obj field.
+// The obj parameter can either be a structure or pointer to structure.
 func StructFieldTag(obj interface{}, fieldName string) (reflect.StructTag, error) {
 	structField, err := StructField(obj, fieldName)
 	if err != nil {
@@ -79,7 +83,7 @@ func StructFieldTag(obj interface{}, fieldName string) (reflect.StructTag, error
 }
 
 // StructFieldTagValue returns the provided obj field tag value.
-// The `obj` parameter can either be a structure or pointer to structure.
+// The obj parameter can either be a structure or pointer to structure.
 func StructFieldTagValue(obj interface{}, fieldName, tagKey string) (string, error) {
 	tag, err := StructFieldTag(obj, fieldName)
 	if err != nil {
@@ -89,7 +93,9 @@ func StructFieldTagValue(obj interface{}, fieldName, tagKey string) (string, err
 	return tag.Get(tagKey), nil
 }
 
-// EmbedStructField ...
+// EmbedStructField returns the reflect.Value of a field in the
+// nested structure of obj based on the specified fieldPath.
+// The obj can either be a structure or a pointer to a structure.
 func EmbedStructField(obj interface{}, fieldPath string) (reflect.StructField, error) {
 	var empty reflect.StructField
 	if obj == nil {
@@ -128,7 +134,9 @@ func EmbedStructField(obj interface{}, fieldPath string) (reflect.StructField, e
 	return empty, nil
 }
 
-// EmbedStructFieldKind ...
+// EmbedStructFieldKind returns the reflect.Kind of a field in the
+// nested structure of obj based on the specified fieldPath.
+// The obj can either be a structure or a pointer to a structure.
 func EmbedStructFieldKind(obj interface{}, fieldPath string) (reflect.Kind, error) {
 	field, err := EmbedStructField(obj, fieldPath)
 	if err != nil {
@@ -138,7 +146,9 @@ func EmbedStructFieldKind(obj interface{}, fieldPath string) (reflect.Kind, erro
 	return field.Type.Kind(), nil
 }
 
-// EmbedStructFieldType ...
+// EmbedStructFieldType returns the reflect.Type of a field in the
+// nested structure of obj based on the specified fieldPath.
+// The obj can either be a structure or a pointer to a structure.
 func EmbedStructFieldType(obj interface{}, fieldPath string) (reflect.Type, error) {
 	field, err := EmbedStructField(obj, fieldPath)
 	if err != nil {
@@ -148,7 +158,9 @@ func EmbedStructFieldType(obj interface{}, fieldPath string) (reflect.Type, erro
 	return field.Type, nil
 }
 
-// EmbedStructFieldTypeStr ...
+// EmbedStructFieldTypeStr returns the string of the reflect.Type of a field in the nested structure
+// of obj based on the specified fieldPath.
+// The obj can either be a structure or a pointer to a structure.
 func EmbedStructFieldTypeStr(obj interface{}, fieldPath string) (string, error) {
 	field, err := EmbedStructField(obj, fieldPath)
 	if err != nil {
@@ -158,12 +170,14 @@ func EmbedStructFieldTypeStr(obj interface{}, fieldPath string) (string, error) 
 	return field.Type.String(), nil
 }
 
-// StructFields 获取结构体的字段
+// StructFields returns a slice of reflect.StructField containing all the fields of the obj.
+// The obj can either be a structure or a pointer to a structure.
 func StructFields(obj interface{}) ([]reflect.StructField, error) {
 	return structFields(obj, false)
 }
 
-// StructFieldsFlatten ...
+// StructFieldsFlatten returns "flattened" struct fields.
+// Note that StructFieldsFlatten treats fields from anonymous inner structs as normal fields.
 func StructFieldsFlatten(obj interface{}) ([]reflect.StructField, error) {
 	return structFields(obj, true)
 }
@@ -199,7 +213,9 @@ func structFields(obj interface{}, flatten bool) ([]reflect.StructField, error) 
 	return res, nil
 }
 
-// SelectStructFields ...
+// SelectStructFields has the same functionality as StructFields, but only the
+// fields for which the function f returns true will be returned.
+// The obj can either be a structure or pointer to structure.
 func SelectStructFields(obj interface{}, f func(int, reflect.StructField) bool) ([]reflect.StructField, error) {
 	if obj == nil {
 		return nil, errors.New("obj must not be nil")
@@ -219,7 +235,9 @@ func SelectStructFields(obj interface{}, f func(int, reflect.StructField) bool) 
 	return res, nil
 }
 
-// RangeStructFields ...
+// RangeStructFields iterates over all struct fields of obj and calls function f on each field.
+// If function f returns false, the iteration stops.
+// The obj can either be a structure or pointer to structure.
 func RangeStructFields(obj interface{}, f func(int, reflect.StructField) bool) error {
 	if obj == nil {
 		return errors.New("obj must not be nil")
@@ -238,7 +256,8 @@ func RangeStructFields(obj interface{}, f func(int, reflect.StructField) bool) e
 	return nil
 }
 
-// AnonymousStructFields 获取匿名结构体字段
+// AnonymousStructFields returns the slice of reflect.StructField of all anonymous fields in obj.
+// The obj can either be a structure or pointer to structure.
 func AnonymousStructFields(obj interface{}) ([]reflect.StructField, error) {
 	return SelectStructFields(obj, func(i int, field reflect.StructField) bool {
 		return field.Anonymous
