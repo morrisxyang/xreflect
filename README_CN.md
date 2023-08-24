@@ -64,6 +64,60 @@ fmt.Println(res[0].Interface())
 
 ## 核心方法
 
+### FieldX
+
+- [func Field(obj interface{}, fieldName string) (reflect.Value, error)](https://pkg.go.dev/github.com/morrisxyang/xreflect#Field)
+- [func FieldValue(obj interface{}, fieldName string) (interface{}, error)](https://pkg.go.dev/github.com/morrisxyang/xreflect#FieldValue)
+- [func EmbedField(obj interface{}, fieldPath string) (reflect.Value, error)](https://pkg.go.dev/github.com/morrisxyang/xreflect#EmbedField)
+- [func EmbedFieldValue(obj interface{}, fieldPath string) (interface{}, error)](https://pkg.go.dev/github.com/morrisxyang/xreflect#EmbedFieldValue)
+- [func Fields(obj interface{}) (map[string]reflect.Value, error)](https://pkg.go.dev/github.com/morrisxyang/xreflect#Fields)
+- [func FieldsDeep(obj interface{}) (map[string]reflect.Value, error)](https://pkg.go.dev/github.com/morrisxyang/xreflect#FieldsDeep)
+- [func RangeFields(obj interface{}, f func(string, reflect.StructField, reflect.Value) bool) error](https://pkg.go.dev/github.com/morrisxyang/xreflect#RangeFields)
+- [func SelectFields(obj interface{}, f func(string, reflect.StructField, reflect.Value) bool) (map[string]reflect.Value, error)](https://pkg.go.dev/github.com/morrisxyang/xreflect#SelectFields)
+- etc.
+
+### SetX
+
+- [func SetEmbedField(obj interface{}, fieldPath string, fieldValue interface{}) error](https://pkg.go.dev/github.com/morrisxyang/xreflect#SetEmbedField)
+
+- [func SetField(obj interface{}, fieldName string, fieldValue interface{}) error](https://pkg.go.dev/github.com/morrisxyang/xreflect#SetField)
+- [func SetPrivateField(obj interface{}, fieldName string, fieldValue interface{}) error](https://pkg.go.dev/github.com/morrisxyang/xreflect#SetPrivateField)
+- etc.
+
+### StrcutFieldX
+
+- [func StructField(obj interface{}, fieldName string) (reflect.StructField, error)](https://pkg.go.dev/github.com/morrisxyang/xreflect#StructField)
+- [func StructFieldTagValue(obj interface{}, fieldName, tagKey string) (string, error)](https://pkg.go.dev/github.com/morrisxyang/xreflect#StructFieldTagValue)
+- [func EmbedStructField(obj interface{}, fieldPath string) (reflect.StructField, error)](https://pkg.go.dev/github.com/morrisxyang/xreflect#EmbedStructField)
+
+- [func StructFields(obj interface{}) ([]reflect.StructField, error)](https://pkg.go.dev/github.com/morrisxyang/xreflect#StructFields)
+- [func StructFieldsFlatten(obj interface{}) ([]reflect.StructField, error)](https://pkg.go.dev/github.com/morrisxyang/xreflect#StructFieldsFlatten)
+
+- [func SelectStructFields(obj interface{}, f func(int, reflect.StructField) bool) ([]reflect.StructField, error)](https://pkg.go.dev/github.com/morrisxyang/xreflect#SelectStructFields)
+
+- [func RangeStructFields(obj interface{}, f func(int, reflect.StructField) bool) error](https://pkg.go.dev/github.com/morrisxyang/xreflect#RangeStructFields)
+
+- etc.
+
+### FuncX
+
+- [func CallFunc(fn interface{}, args ...interface{}) ([]reflect.Value, error)](https://pkg.go.dev/github.com/morrisxyang/xreflect#CallFunc)
+- [func CallMethod(obj interface{}, method string, params ...interface{}) ([]reflect.Value, error)](https://pkg.go.dev/github.com/morrisxyang/xreflect#CallMethod)
+
+- etc.
+
+### Others
+
+- [func NewInstance(obj interface{}) interface{}](https://pkg.go.dev/github.com/morrisxyang/xreflect#NewInstance)
+- [func Type(obj interface{}) reflect.Type](https://pkg.go.dev/github.com/morrisxyang/xreflect#Type)
+- [func TypePenetrateElem(obj interface{}) reflect.Type](https://pkg.go.dev/github.com/morrisxyang/xreflect#TypePenetrateElem)
+- [func Value(obj interface{}) reflect.Value](https://pkg.go.dev/github.com/morrisxyang/xreflect#Value)
+- [func ValuePenetrateElem(obj interface{}) reflect.Value](https://pkg.go.dev/github.com/morrisxyang/xreflect#ValuePenetrateElem)
+- etc.
 
 ## FAQ
+
+### `Field` 和 `StrcutField` 的区别是?
+
+`Field` 返回  reflect.Value, `StrcutField` 返回 reflect.StrcutField. 
 
