@@ -146,7 +146,8 @@ func EmbedFieldType(obj interface{}, fieldPath string) (reflect.Type, error) {
 	return field.Type(), nil
 }
 
-// EmbedFieldTypeStr returns the reflect.Type of a field in the nested structure of obj based on the specified fieldPath.
+// EmbedFieldTypeStr returns the string of the reflect.Type of a field in the nested structure of obj
+// based on the specified fieldPath.
 // The obj can either be a structure or a pointer to a structure.
 func EmbedFieldTypeStr(obj interface{}, fieldPath string) (string, error) {
 	field, err := EmbedField(obj, fieldPath)
@@ -195,7 +196,7 @@ func fields(obj interface{}, deep bool, prefix string) (map[string]reflect.Value
 		if deep {
 			// deal struct
 			if cf.Kind() == reflect.Struct {
-				m, err := fields(cf.Interface(), deep, key)
+				m, err := fields(cf, deep, key)
 				if err != nil {
 					return nil, err
 				}
@@ -208,7 +209,7 @@ func fields(obj interface{}, deep bool, prefix string) (map[string]reflect.Value
 			// deal struct pointer
 			if cf.Kind() == reflect.Ptr && !cf.IsNil() {
 				cf = cf.Elem()
-				m, err := fields(cf.Interface(), deep, key)
+				m, err := fields(cf, deep, key)
 				if err != nil {
 					return nil, err
 				}
@@ -267,7 +268,7 @@ func selectFields(obj interface{}, f func(string, reflect.StructField, reflect.V
 		if deep {
 			// deal struct
 			if cf.Kind() == reflect.Struct {
-				m, err := selectFields(cf.Interface(), f, deep, key)
+				m, err := selectFields(cf, f, deep, key)
 				if err != nil {
 					return nil, err
 				}
@@ -280,7 +281,7 @@ func selectFields(obj interface{}, f func(string, reflect.StructField, reflect.V
 			// deal struct pointer
 			if cf.Kind() == reflect.Ptr && !cf.IsNil() {
 				cf = cf.Elem()
-				m, err := selectFields(cf.Interface(), f, deep, key)
+				m, err := selectFields(cf, f, deep, key)
 				if err != nil {
 					return nil, err
 				}
@@ -335,7 +336,7 @@ func rangeFields(obj interface{}, f func(string, reflect.StructField, reflect.Va
 		if deep {
 			// deal struct
 			if cf.Kind() == reflect.Struct {
-				err := rangeFields(cf.Interface(), f, deep, key)
+				err := rangeFields(cf, f, deep, key)
 				if err != nil {
 					return err
 				}
@@ -345,7 +346,7 @@ func rangeFields(obj interface{}, f func(string, reflect.StructField, reflect.Va
 			// deal struct pointer
 			if cf.Kind() == reflect.Ptr && !cf.IsNil() {
 				cf = cf.Elem()
-				err := rangeFields(cf.Interface(), f, deep, key)
+				err := rangeFields(cf, f, deep, key)
 				if err != nil {
 					return err
 				}
