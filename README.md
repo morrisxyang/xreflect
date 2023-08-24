@@ -1,5 +1,6 @@
 # xreflect
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/morrisxyang/xreflect)](https://goreportcard.com/report/github.com/morrisxyang/xreflect)
 ![Static Badge](https://img.shields.io/badge/License-BSD2-Green)
 ![Static Badge](https://img.shields.io/badge/go%20verion-%3E%3D1.15-blue)
 
