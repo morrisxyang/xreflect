@@ -56,7 +56,7 @@ var addFunc = func(nums ...int) int {
 		return sum
 }
 
-res, _ := CallFunc(addFunc1, 1, 2, 3)
+res, _ := CallFunc(addFunc, 1, 2, 3)
 
 // 6
 fmt.Println(res[0].Interface())
