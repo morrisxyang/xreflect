@@ -49,6 +49,46 @@ _ = SetEmbedField(person, "Country.ID", 1)
 fmt.Printf("Perk's ID: %d \n", person.Country.ID)
 ```
 
+Find json tag
+
+```go
+type Person struct {
+	Name string `json:"name" xml:"_name"`
+}
+p := &Person{}
+// json:"name" xml:"_name"
+fmt.Println(StructFieldTag(p, "Name"))
+// name <nil>
+fmt.Println(StructFieldTagValue(p, "Name", "json"))
+// _name <nil>
+fmt.Println(StructFieldTagValue(p, "Name", "xml"))
+```
+
+Filter instance fields (deep traversal)
+
+```go
+type Person struct {
+	id   string
+	Age  int    `json:"int"`
+	Name string `json:"name"`
+	Home struct {
+		Address string `json:"address"`
+	}
+}
+
+p := &Person{}
+fields, _ := SelectFieldsDeep(p, func(s string, field reflect.StructField, value reflect.Value) bool {
+	return field.Tag.Get("json") != ""
+})
+// key: Age type: int
+// key: Name type: string
+// key: Home.Address type: string
+for k, v := range fields {
+	fmt.Printf("key: %s type: %v\n", k, v.Type())
+}
+```
+
+
 Call a function
 
 ```go
