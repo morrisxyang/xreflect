@@ -352,3 +352,17 @@ func TestImplements(t *testing.T) {
 		})
 	}
 }
+
+func TestIsInterfaceNil(t *testing.T) {
+	var inter interface{} = (*int)(nil)
+	var inter1 interface{} = nil
+	t.Run("inter not nil", func(t *testing.T) {
+		assert.Equal(t, false, inter == nil)
+	})
+	t.Run("inter is nil", func(t *testing.T) {
+		assert.Equal(t, true, IsInterfaceNil(inter))
+	})
+	t.Run("inter1 is nil", func(t *testing.T) {
+		assert.Equal(t, true, IsInterfaceNil(inter1))
+	})
+}
