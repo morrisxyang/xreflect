@@ -121,6 +121,17 @@ func Implements(obj interface{}, in interface{}) bool {
 	return objType.Implements(interfaceType)
 }
 
+// IsInterfaceNil returns whether obj is actually nil.
+func IsInterfaceNil(obj interface{}) bool {
+	value := reflect.ValueOf(obj)
+	if value.Kind() == reflect.Ptr {
+		return value.IsNil()
+	} else if value.Kind() == reflect.Invalid {
+		return true
+	}
+	return false
+}
+
 func checkField(field reflect.Value, name string) error {
 	if !field.IsValid() {
 		return fmt.Errorf("field: %s is invalid", name)
